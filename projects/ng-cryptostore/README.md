@@ -1,24 +1,106 @@
-# NgCryptostore
+# NgCyptoStore
 
-This library was generated with [Angular CLI](https://github.com/angular/angular-cli) version 11.2.1.
+This library was generated with [Angular CLI](https://github.com/angular/angular-cli) version 11.2.0.
+to store data (string,object or array of abjects) in localstore or sessionstore with crypto-js package
+## Table of Contents
 
-## Code scaffolding
+- [Installation](#Installation)
+- [Imports](#Imports)
+- [Usage](#Usage)
+- [Options](#Options)
+## Installation
 
-Run `ng generate component component-name --project ng-cryptostore` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module --project ng-cryptostore`.
-> Note: Don't forget to add `--project ng-cryptostore` or else it will be added to the default project in your `angular.json` file. 
+> this package require install crypto-js package
 
-## Build
+```js
+npm i crypto-js ng-cryptostore
+```
 
-Run `ng build ng-cryptostore` to build the project. The build artifacts will be stored in the `dist/` directory.
+## Imports and injections 
+```js
+import { LocalstorageService,SessionstorageService } from 'ng-cryptostore';
 
-## Publishing
+@Component({
+  selector: 'app-root',
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.css']
+})
+export class AppComponent implements OnInit {
 
-After building your library with `ng build ng-cryptostore`, go to the dist folder `cd dist/ng-cryptostore` and run `npm publish`.
+  constructor(private srv:SessionstorageService){}
+  
+  ngOnInit(): void {
+    this.srv.setItem('fruits',[{name:'fraise',icons:'🍓'},{name:'banane',icons:'🍌'}])
+  }
+}
+```
 
-## Running unit tests
+> add to constructor :
+```js
+// you can use LocalstorageService or SessionstorageService
+constructor(private srv: LocalstorageService) { }
 
-Run `ng test ng-cryptostore` to execute the unit tests via [Karma](https://karma-runner.github.io).
+```
 
-## Further help
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+## Usage
+
+> setItem(name: string, data: any, secret?: any): Promise<void>
+
+> SetData
+
+```js
+// store array of objects crypted
+    const fruitsArray = [{name:'fraise',icons:'🍓'},{name:'banane',icons:'🍌'}]
+    this.srv.setItem('fruitsArray',fruitsArray)
+
+// store object crypted
+    this.srv.setItem('fruit',{name:'orange',icons:'🍊'})
+
+// store strings crypted
+    this.srv.setItem('strings','fruits: orange,fraise,banane and ...')
+
+// store numbers crypted
+    this.srv.setItem('numbers',1234567892121)
+```
+
+> GetData
+> for example :
+
+```js
+// get fruits array decrypted
+    console.log(this.srv.getItem('fruitsArray')); //  [{…}, {…}]
+    
+// get fruit object decrypted
+    console.log(this.srv.getItem('fruit')); //  {…}
+    
+// get fruit strings decrypted
+    console.log(this.srv.getItem('strings')); //  fruits: orange,fraise,banane and ...
+    
+// get numbers decrypted
+    console.log(this.srv.getItem('numbers')); //  1234567892121
+```
+
+> GetData async
+> for example :
+
+```js
+// get data decrypted
+    this.srv.awiatGetItem('fruitsArray').then(res => {
+      console.log(res);  // [{…}, {…}]
+    })
+```
+
+## Options
+
+> the secret is optional but if you used a custom secret in setItem you need to store it somewhere to use it later in getItem
+
+```js
+// set data crypted with token !secret token @123456
+    this.srv.setItem('fruits',[{name:'orange',icons:'🍊'}],'!secret token @123456')
+
+// get data decrypted with token !secret token @123456
+    this.srv.awiatGetItem('fruits','!secret token @123456').then(res => {
+    console.log(res);  // [{…}]
+    })
+```

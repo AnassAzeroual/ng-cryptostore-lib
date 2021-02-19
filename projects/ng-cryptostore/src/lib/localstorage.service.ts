@@ -5,10 +5,11 @@ import * as CryptoJS from 'crypto-js';
 })
 export class LocalstorageService {
 
-  async setItem(name: string, data: any, secret?: any) {
+  async setItem(name: string, data: any, secret?: string) {
     if (!secret) {
       secret = "kQ-ND4EZF421S@DF84FQZ634§/4FSQ1C6§!Q5Q4F@E1SDQ!F84G68TH451BBF3SFD64R9!EG6DG"
     }
+    console.log(secret);
     let dataCrypted = await CryptoJS.AES.encrypt(JSON.stringify(data), secret,
       {
         keySize: 128 / 8,
@@ -19,10 +20,11 @@ export class LocalstorageService {
     localStorage.setItem(name, dataCrypted)
   }
 
-  getItem(name: string, secret?: any) {
+  getItem(name: string, secret?: string) {
     if (!secret) {
       secret = "kQ-ND4EZF421S@DF84FQZ634§/4FSQ1C6§!Q5Q4F@E1SDQ!F84G68TH451BBF3SFD64R9!EG6DG"
     }
+
     let scripts: any = localStorage.getItem(name)
     return JSON.parse(CryptoJS.enc.Utf8.stringify(CryptoJS.AES.decrypt(scripts, secret,
       {
@@ -33,7 +35,7 @@ export class LocalstorageService {
       })));
   }
 
-  async awiatGetItem(name: string, secret?: any) {
+  async awiatGetItem(name: string, secret?: string) {
     if (!secret) {
       secret = "kQ-ND4EZF421S@DF84FQZ634§/4FSQ1C6§!Q5Q4F@E1SDQ!F84G68TH451BBF3SFD64R9!EG6DG"
     }

@@ -28,6 +28,7 @@ import { LocalstorageService,SessionstorageService } from 'ng-cryptostore';
 export class AppComponent implements OnInit {
 
   constructor(private srv:SessionstorageService){}
+  
   ngOnInit(): void {
     this.srv.setItem('fruits',[{name:'fraise',icons:'🍓'},{name:'banane',icons:'🍌'}])
   }
@@ -69,10 +70,13 @@ constructor(private srv: LocalstorageService) { }
 ```js
 // get fruits array decrypted
     console.log(this.srv.getItem('fruitsArray')); //  [{…}, {…}]
+    
 // get fruit object decrypted
     console.log(this.srv.getItem('fruit')); //  {…}
+    
 // get fruit strings decrypted
     console.log(this.srv.getItem('strings')); //  fruits: orange,fraise,banane and ...
+    
 // get numbers decrypted
     console.log(this.srv.getItem('numbers')); //  1234567892121
 ```

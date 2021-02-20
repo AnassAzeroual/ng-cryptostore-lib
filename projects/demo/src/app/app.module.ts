@@ -1,3 +1,5 @@
+import { SessionstoreComponent } from './sessionstore/sessionstore.component';
+import { LocalstoreComponent } from './localstore/localstore.component';
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 
@@ -6,7 +8,9 @@ import { AppComponent } from './app.component';
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    LocalstoreComponent,
+    SessionstoreComponent
   ],
   imports: [
     BrowserModule,

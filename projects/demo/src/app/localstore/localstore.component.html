@@ -1,0 +1,38 @@
+<div class="container">
+  <div class="form-floating">
+    <textarea class="form-control" placeholder="Leave a comment here" id="floatingTextarea2"
+      style="height: 100px;width: 100% !important;" #text></textarea>
+    <label for="floatingTextarea2">Comments</label>
+  </div>
+  <div class="text-end">
+    <input type="button" value="Store Text" class="btn btn-info m-1" (click)="save(text.value)">
+  </div>
+
+  <div *ngIf="showDataCrypted">
+    <hr>
+    <label class="mt-3" for="crypted">Text Crypted</label>
+    <div style="border: 1px solid orange;    max-width: 100%;
+    overflow: hidden;
+    padding: 5px 5px;
+    border-radius: 8px;
+    break-after: auto;">
+      {{showDataCrypted}}
+    </div>
+    <label class="mt-3" for="decrypted">getItem Decrypted</label>
+    <div style="border: 1px solid greenyellow;    max-width: 100%;
+    overflow: hidden;
+    padding: 5px 5px;
+    border-radius: 8px;
+    break-after: auto;">
+      {{showData}}
+    </div>
+    <label class="mt-3" for="decrypted">awiatGetItem Decrypted</label>
+    <div style="border: 1px solid #2e7d32;    max-width: 100%;
+    overflow: hidden;
+    padding: 5px 5px;
+    border-radius: 8px;
+    break-after: auto;">
+      {{showDataAwait}}
+    </div>
+  </div>
+</div>

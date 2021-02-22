@@ -116,7 +116,7 @@ console.log(await this.srv.awiatGetItem("fruitsArray")); // [{…}, {…}]
 > for example :
 
 ```js
-// check if this item exist
+// check if this item exist, if exist return true
 console.log(this.srv.check("fruit")); // true or false
 ```
 

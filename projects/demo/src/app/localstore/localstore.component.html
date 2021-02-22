@@ -6,6 +6,12 @@
   </div>
   <div class="text-end">
     <input type="button" value="Store Text" class="btn btn-info m-1" (click)="save(text.value)">
+    <input type="button" value="Check" class="btn btn-info m-1" (click)="check()">
+    <input type="button" value="Get length" class="btn btn-info m-1" (click)="getLength()">
+    <input type="button" value="Get sync" class="btn btn-info m-1" (click)="awiatGetItem()">
+    <input type="button" value="Get item" class="btn btn-info m-1" (click)="getItem()">
+    <input type="button" value="Remove item" class="btn btn-info m-1" (click)="removeItem(text.value)">
+    <input type="button" value="Remove all" class="btn btn-info m-1" (click)="removeAll()">
   </div>
 
   <div *ngIf="showDataCrypted">

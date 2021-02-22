@@ -49,6 +49,7 @@ constructor(private srv: LocalstorageService) { }
 ## Usage
 
 > (method) setItem(name: string, data: any, secret?: string): Promise<void>
+
 > method 'setItem' store the data
 > for example :
 
@@ -71,6 +72,7 @@ this.srv.setItem("numbers", 1234567892121);
 ```
 
 > (method) getItem(name: string, secret?: string): any
+
 > method 'getItem' read the data
 > for example :
 
@@ -92,6 +94,7 @@ console.log(this.srv.getItem("this_item_does_not_exist")); //  ""
 ```
 
 > (method) awiatGetItem(name: string, secret?: string): Promise<any>
+
 > method 'awiatGetItem' read the data with promise
 > for example :
 
@@ -108,6 +111,7 @@ console.log(await this.srv.awiatGetItem("fruitsArray")); // [{…}, {…}]
 ```
 
 > (method) check(name: string): boolean
+
 > method 'check' check the existence of the key and the value
 > for example :
 
@@ -117,6 +121,7 @@ console.log(this.srv.check("fruit")); // true or false
 ```
 
 > (method) removeItem(name: string): void
+
 > method 'removeItem' remove one item by name
 > for example :
 
@@ -125,6 +130,7 @@ this.srv.removeItem("fruit");
 ```
 
 > (method) clearAll(): void
+
 > method 'clearAll' remove all items
 > for example :
 
@@ -133,6 +139,7 @@ this.srv.clearAll();
 ```
 
 > (method) getItemLength(name: string, secret?: string): Promise<number>
+
 > method 'getItemLength' decrypt and get length
 > for example :
 

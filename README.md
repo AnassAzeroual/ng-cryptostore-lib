@@ -48,9 +48,9 @@ constructor(private srv: LocalstorageService) { }
 
 ## Usage
 
-> setItem(name: string, data: any, secret?: any): Promise<void>
-
-> SetData
+> (method) setItem(name: string, data: any, secret?: string): Promise<void>
+> method 'setItem' store the data
+> for example :
 
 ```js
 // store array of objects crypted
@@ -70,7 +70,8 @@ this.srv.setItem("strings", "fruits: orange,fraise,banane and ...");
 this.srv.setItem("numbers", 1234567892121);
 ```
 
-> GetData
+> (method) getItem(name: string, secret?: string): any
+> method 'getItem' read the data
 > for example :
 
 ```js
@@ -90,7 +91,8 @@ console.log(this.srv.getItem("numbers")); //  1234567892121
 console.log(this.srv.getItem("this_item_does_not_exist")); //  ""
 ```
 
-> GetData async
+> (method) awiatGetItem(name: string, secret?: string): Promise<any>
+> method 'awiatGetItem' read the data with promise
 > for example :
 
 ```js
@@ -102,39 +104,42 @@ this.srv.awiatGetItem("fruitsArray").then((res) => {
 // Or
 
 // get data decrypted
-  console.log(await this.srv.awiatGetItem("fruitsArray")); // [{…}, {…}]
+console.log(await this.srv.awiatGetItem("fruitsArray")); // [{…}, {…}]
 ```
 
-> Check existence
+> (method) check(name: string): boolean
+> method 'check' check the existence of the key and the value
 > for example :
 
 ```js
-// (method) check(name: string): boolean
-// method 'check' Check the existence of the key and the value
+// check if this item exist
 console.log(this.srv.check("fruit")); // true or false
 ```
 
-> removeItem or clearAll
+> (method) removeItem(name: string): void
+> method 'removeItem' remove one item by name
 > for example :
 
 ```js
-// (method) removeItem(name: string): void
-// method 'removeItem' remove one item by name
-this.srv.removeItem("fruit")
-
-// (method) clearAll(): void
-// method 'clearAll' remove all items
-this.srv.clearAll()
+this.srv.removeItem("fruit");
 ```
 
-> Get item length
+> (method) clearAll(): void
+> method 'clearAll' remove all items
 > for example :
 
 ```js
-// (method) getItemLength(name: string, secret?: string): Promise<number>
-// method 'getItemLength' decrypt and get length 
+this.srv.clearAll();
+```
+
+> (method) getItemLength(name: string, secret?: string): Promise<number>
+> method 'getItemLength' decrypt and get length
+> for example :
+
+```js
 console.log(this.srv.getItemLength("fruit")); // 21
 ```
+
 ## Options
 
 > the secret is optional but if you used a custom secret in setItem you need to store it somewhere to use it later in getItem

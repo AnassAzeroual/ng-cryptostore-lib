@@ -167,7 +167,8 @@ console.log(await this.srv.crypt(data)); // U2FsdGVkX18lKfMIr8dpIGGLy...
 > for example :
 
 ```js
-console.log(await this.srv.decrypt("U2FsdGVkX18lKfMIr8dpIGGLy...")); // [{ name: "fraise", icons: "🍓" },{ name: "banane", icons: "🍌"}]
+const dataCrypted = "U2FsdGVkX18lKfMIr8dpIGGLy...";
+console.log(await this.srv.decrypt(dataCrypted)); // [{ name: "fraise", icons: "🍓" },{ name: "banane", icons: "🍌"}]
 ```
 
 ## Options

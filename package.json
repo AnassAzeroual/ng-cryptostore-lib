@@ -4,8 +4,8 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "ng build",
-    "test": "ng test",
+    "build": "ng build ng-cryptostore --prod && cd dist/ng-cryptostore && npm publish",
+    "tests": "ng build ng-cryptostore --prod",
     "lint": "ng lint",
     "e2e": "ng e2e"
   },

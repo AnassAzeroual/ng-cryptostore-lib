@@ -46,6 +46,20 @@ constructor(private srv: LocalstorageService) { }
 
 ```
 
+## All Fuctions
+
+```js
+1: setItem(name: string, data: any, secret?: string): Promise<void>
+2: getItem(name: string, secret?: string): any
+3: awiatGetItem(name: string, secret?: string): Promise<any>
+4: check(name: string): boolean
+5: removeItem(name: string): void
+6: clearAll(): void
+7: getItemLength(name: string, secret?: string): Promise<number>
+8: crypt(data: any, secret?: string): Promise<any>
+9: decrypt(scripts: string, secret?: string): Promise<any>
+```
+
 ## Usage
 
 > (method) setItem(name: string, data: any, secret?: string): Promise<void>
@@ -145,6 +159,31 @@ this.srv.clearAll();
 
 ```js
 console.log(this.srv.getItemLength("fruit")); // 21
+```
+
+> (method) crypt(data: any, secret?: string): Promise<any>
+
+> method 'crypt' return data crypted
+> for example :
+
+```js
+const data = [
+  { name: "fraise", icons: "🍓" },
+  { name: "banane", icons: "🍌" },
+];
+
+console.log(await this.srv.crypt(data)); // U2FsdGVkX18lKfMIr8dpIGGLy...
+```
+
+> (method) decrypt(scripts: string, secret?: string): Promise<any>
+
+> method 'decrypt' return data decrypted
+> for example :
+
+```js
+const dataCrypted = "U2FsdGVkX18lKfMIr8dpIGGLy...";
+
+console.log(await this.srv.decrypt(dataCrypted)); // [{ name: "fraise", icons: "🍓" },{ name: "banane", icons: "🍌"}]
 ```
 
 ## Options

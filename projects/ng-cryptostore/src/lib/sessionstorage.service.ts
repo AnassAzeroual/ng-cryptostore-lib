@@ -67,4 +67,30 @@ export class SessionstorageService {
     sessionStorage.clear()
   }
 
+  async crypt(data: any, secret?: string) {
+    if (!secret) {
+      secret = "kQ-ND4EZF421S@DF84FQZ634§/4FSQ1C6§!Q5Q4F@E1SDQ!F84G68TH451BBF3SFD64R9!EG6DG"
+    }
+    return await CryptoJS.AES.encrypt(JSON.stringify(data), secret,
+      {
+        keySize: 128 / 8,
+        iv: secret,
+        mode: CryptoJS.mode.CBC,
+        padding: CryptoJS.pad.Pkcs7
+      }).toString();
+  }
+
+  async decrypt(scripts: string, secret?: string) {
+    if (!secret) {
+      secret = "kQ-ND4EZF421S@DF84FQZ634§/4FSQ1C6§!Q5Q4F@E1SDQ!F84G68TH451BBF3SFD64R9!EG6DG"
+    }
+    return await JSON.parse(CryptoJS.enc.Utf8.stringify(CryptoJS.AES.decrypt(scripts, secret,
+      {
+        keySize: 128 / 8,
+        iv: secret,
+        mode: CryptoJS.mode.CBC,
+        padding: CryptoJS.pad.Pkcs7
+      })));
+  }
+
 }

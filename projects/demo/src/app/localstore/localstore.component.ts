@@ -59,4 +59,18 @@ export class LocalstoreComponent implements OnInit {
     console.log(await this.srv.getItemLength('text'));
   }
 
+  async crypt() {
+    console.log(await this.srv.crypt([
+      { name: "fraise", icons: "🍓" },
+      { name: "banane", icons: "🍌" },
+    ]));
+  }
+
+  async decrypt() {
+    console.log(await this.srv.decrypt(await this.srv.crypt([
+      { name: "fraise", icons: "🍓" },
+      { name: "banane", icons: "🍌" },
+    ])));
+  }
+
 }

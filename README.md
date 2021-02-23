@@ -168,6 +168,7 @@ console.log(await this.srv.crypt(data)); // U2FsdGVkX18lKfMIr8dpIGGLy...
 
 ```js
 const dataCrypted = "U2FsdGVkX18lKfMIr8dpIGGLy...";
+
 console.log(await this.srv.decrypt(dataCrypted)); // [{ name: "fraise", icons: "🍓" },{ name: "banane", icons: "🍌"}]
 ```
 

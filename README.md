@@ -147,6 +147,29 @@ this.srv.clearAll();
 console.log(this.srv.getItemLength("fruit")); // 21
 ```
 
+> (method) crypt(data: any, secret?: string): Promise<any>
+
+> method 'crypt' return data crypted
+> for example :
+
+```js
+const data = [
+  { name: "fraise", icons: "🍓" },
+  { name: "banane", icons: "🍌" },
+];
+
+console.log(await this.srv.crypt(data)); // U2FsdGVkX18lKfMIr8dpIGGLy...
+```
+
+> (method) decrypt(scripts: string, secret?: string): Promise<any>
+
+> method 'decrypt' return data decrypted
+> for example :
+
+```js
+console.log(await this.srv.decrypt("U2FsdGVkX18lKfMIr8dpIGGLy...")); // [{ name: "fraise", icons: "🍓" },{ name: "banane", icons: "🍌"}]
+```
+
 ## Options
 
 > the secret is optional but if you used a custom secret in setItem you need to store it somewhere to use it later in getItem

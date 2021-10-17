@@ -5,11 +5,10 @@ to store data (string,object or array of abjects) in localstore or sessionstore 
 
 ## Table of Contents
 
-- [Installation](#Installation)
-- [Imports](#Imports)
+- [Imports and injections](#Imports)
+- [All Fuctions](#Functions)
 - [Usage](#Usage)
 - [Options](#Options)
-
 
 ## Imports and injections
 
@@ -39,7 +38,7 @@ constructor(private srv: LocalstorageService) { }
 
 ```
 
-## All Functions
+## All Fuctions
 
 ```js
 1: setItem(name: string, data: any, secret?: string): Promise<void>

@@ -5,8 +5,8 @@ to store data (string,object or array of abjects) in localstore or sessionstore 
 
 ## Table of Contents
 
-- [Installation](#Installation)
-- [Imports](#Imports)
+- [Imports and injections](#Imports)
+- [All Fuctions](#Functions)
 - [Usage](#Usage)
 - [Options](#Options)
 

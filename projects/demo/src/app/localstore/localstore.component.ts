@@ -1,5 +1,5 @@
-import { LocalstorageService } from 'ng-cryptostore';
 import { Component, OnInit } from '@angular/core';
+import { LocalstorageService } from 'projects/ng-cryptostore/src/public-api';
 
 @Component({
   selector: 'app-localstore',

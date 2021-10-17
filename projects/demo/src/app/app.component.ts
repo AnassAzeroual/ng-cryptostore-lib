@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { LocalstorageService,SessionstorageService } from 'ng-cryptostore';
+import { SessionstorageService } from 'projects/ng-cryptostore/src/lib/sessionstorage.service';
 
 @Component({
   selector: 'app-root',

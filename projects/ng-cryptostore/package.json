@@ -1,6 +1,7 @@
 {
   "name": "ng-cryptostore",
-  "version": "12.2.10",
+  "version": "12.2.11",
+  
   "author": "Anass Azeroual <azeroual.anass2015@gmail.com> (https://github.com/AnassAzeroual)",
   "license": "MIT",
   "keywords": [

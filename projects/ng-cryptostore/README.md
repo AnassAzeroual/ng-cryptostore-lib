@@ -1,6 +1,6 @@
 # NgCyptoStore
 
-This library was generated with [Angular CLI](https://github.com/angular/angular-cli) version 11.2.0.
+This library was generated with [Angular CLI](https://github.com/angular/angular-cli) version 12.2.10.
 to store data (string,object or array of abjects) in localstore or sessionstore with crypto-js package
 
 ## Table of Contents
@@ -9,14 +9,6 @@ to store data (string,object or array of abjects) in localstore or sessionstore 
 - [Imports](#Imports)
 - [Usage](#Usage)
 - [Options](#Options)
-
-## Installation
-
-> this package require install crypto-js package
-
-```js
-npm i crypto-js@4.0.0 ng-cryptostore
-```
 
 ## Imports and injections
 

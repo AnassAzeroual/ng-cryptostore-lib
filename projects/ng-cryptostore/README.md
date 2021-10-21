@@ -38,7 +38,7 @@ constructor(private srv: LocalstorageService) { }
 
 ```
 
-## All Fuctions
+## All Functions
 
 ```js
 1: setItem(name: string, data: any, secret?: string): Promise<void>

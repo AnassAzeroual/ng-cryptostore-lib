@@ -1,5 +1,6 @@
+import { StorageServiceConfigs } from './../../../../ng-cryptostore/src/lib/StorageServiceConfig.service';
 import { Component, OnInit } from '@angular/core';
-import { LocalstorageService } from 'projects/ng-cryptostore/src/public-api';
+import { StorageService } from 'projects/ng-cryptostore/src/public-api';
 
 @Component({
   selector: 'app-localstore',
@@ -10,13 +11,14 @@ export class LocalstoreComponent implements OnInit {
   showDataCrypted: string = ""
   showData: string = ""
   showDataAwait: Promise<any>;
-  constructor(private srv: LocalstorageService) { }
+  constructor(private srv: StorageService, private dataStorage: StorageServiceConfigs) { }
 
   ngOnInit() {
+    console.log("datastoragetype :: ", this.dataStorage._storageType);
   }
 
   save(data: string) {
-    this.srv.setItem('text', data).then(() => {
+    this.srv.set('text', data).then(() => {
       this.show()
       this.read()
       this.readAwait()
@@ -28,15 +30,15 @@ export class LocalstoreComponent implements OnInit {
   }
 
   read() {
-    this.showData = this.srv.getItem('text')
+    this.showData = this.srv.get('text')
   }
 
   async readAwait() {
-    this.showDataAwait = await this.srv.awiatGetItem('text')
+    this.showDataAwait = await this.srv.asyncGet('text')
   }
 
   removeItem(name: string) {
-    this.srv.removeItem("text")
+    this.srv.remove("text")
   }
 
   removeAll() {
@@ -48,11 +50,11 @@ export class LocalstoreComponent implements OnInit {
   }
 
   async awiatGetItem() {
-    console.log(await this.srv.awiatGetItem('text'));
+    console.log(await this.srv.asyncGet('text'));
   }
 
   getItem() {
-    console.log(this.srv.getItem('text'));
+    console.log(this.srv.get('text'));
   }
 
   async getLength() {

@@ -1,5 +1,5 @@
+import { StorageService } from './../../../ng-cryptostore/src/lib/storage.service';
 import { Component, OnInit } from '@angular/core';
-import { SessionstorageService } from 'projects/ng-cryptostore/src/lib/sessionstorage.service';
 
 @Component({
   selector: 'app-root',
@@ -8,8 +8,8 @@ import { SessionstorageService } from 'projects/ng-cryptostore/src/lib/sessionst
 })
 export class AppComponent implements OnInit {
   title = 'demo';
-  constructor(private srv:SessionstorageService){}
+  constructor(private srv: StorageService) { }
   ngOnInit(): void {
-    this.srv.setItem('userData',[{name:'orange',icons:'🍊'},{name:'fraise',icons:'🍓'},{name:'banane',icons:'🍌'}],'2020')
+    this.srv.set('userData', [{ name: 'orange', icons: '🍊' }, { name: 'fraise', icons: '🍓' }, { name: 'banane', icons: '🍌' }], '2020')
   }
 }

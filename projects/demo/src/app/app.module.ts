@@ -1,3 +1,4 @@
+import { StorageModule } from './../../../ng-cryptostore/src/lib/Storage.module';
 import { SessionstoreComponent } from './sessionstore/sessionstore.component';
 import { LocalstoreComponent } from './localstore/localstore.component';
 import { NgModule } from '@angular/core';
@@ -14,7 +15,8 @@ import { AppComponent } from './app.component';
   ],
   imports: [
     BrowserModule,
-    AppRoutingModule
+    AppRoutingModule,
+    StorageModule.forRoot({ storageType: "sessionStorage" })
   ],
   providers: [],
   bootstrap: [AppComponent]

@@ -1,9 +1,9 @@
-import { StorageServiceConfigs } from './../../../../ng-cryptostore/src/lib/StorageServiceConfig.service';
+import { StorageServiceConfig } from './../../../../ng-cryptostore/src/lib/StorageServiceConfig.service';
 import { Component, OnInit } from '@angular/core';
 import { StorageService } from 'projects/ng-cryptostore/src/public-api';
 
 @Component({
-  selector: 'app-localstore',
+  selector: 'app-storage',
   templateUrl: './localstore.component.html',
   styleUrls: ['./localstore.component.scss']
 })
@@ -11,7 +11,12 @@ export class LocalstoreComponent implements OnInit {
   showDataCrypted: string = ""
   showData: string = ""
   showDataAwait: Promise<any>;
-  constructor(private srv: StorageService, private dataStorage: StorageServiceConfigs) { }
+  checkValue: boolean;
+  length: number;
+  storagetype = ""
+  constructor(private srv: StorageService, private dataStorage: StorageServiceConfig) {
+    this.storagetype = this.dataStorage._storageType;
+  }
 
   ngOnInit() {
     console.log("datastoragetype :: ", this.dataStorage._storageType);
@@ -22,11 +27,13 @@ export class LocalstoreComponent implements OnInit {
       this.show()
       this.read()
       this.readAwait()
+      this.check()
+      this.getLength()
     })
   }
 
   show() {
-    this.showDataCrypted = localStorage.getItem('text')
+    this.showDataCrypted = (!!localStorage.getItem('text')) ? localStorage.getItem('text') : sessionStorage.getItem('text');
   }
 
   read() {
@@ -38,7 +45,7 @@ export class LocalstoreComponent implements OnInit {
   }
 
   removeItem(name: string) {
-    this.srv.remove("text")
+    this.srv.remove("text");
   }
 
   removeAll() {
@@ -46,18 +53,12 @@ export class LocalstoreComponent implements OnInit {
   }
 
   check() {
+    this.checkValue = this.srv.check('text');
     console.log(this.srv.check('text'));
   }
 
-  async awiatGetItem() {
-    console.log(await this.srv.asyncGet('text'));
-  }
-
-  getItem() {
-    console.log(this.srv.get('text'));
-  }
-
   async getLength() {
+    this.length = await this.srv.getItemLength('text');
     console.log(await this.srv.getItemLength('text'));
   }
 

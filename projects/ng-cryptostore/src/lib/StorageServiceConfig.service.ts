@@ -4,7 +4,7 @@ import { Injectable, Optional } from '@angular/core';
 
 // tslint:disable-next-line: max-classes-per-file
 @Injectable({ providedIn: 'root' })
-export class StorageServiceConfigs {
+export class StorageServiceConfig {
   _storageType: string;
 
   constructor(@Optional() config?: StorageConfig) {

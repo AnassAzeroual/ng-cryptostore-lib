@@ -1,4 +1,4 @@
-import { StorageServiceConfigs } from './StorageServiceConfig.service';
+import { StorageServiceConfig } from './StorageServiceConfig.service';
 import { Injectable } from '@angular/core';
 import * as CryptoJS from 'crypto-js';
 @Injectable({
@@ -6,7 +6,7 @@ import * as CryptoJS from 'crypto-js';
 })
 export class StorageService {
   storage
-  constructor(private config: StorageServiceConfigs) {
+  constructor(private config: StorageServiceConfig) {
     this.storage = config.storage
   }
 

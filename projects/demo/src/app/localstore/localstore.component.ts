@@ -1,6 +1,6 @@
 import { StorageServiceConfig } from './../../../../ng-cryptostore/src/lib/StorageServiceConfig.service';
 import { Component, OnInit } from '@angular/core';
-import { StorageService } from 'projects/ng-cryptostore/src/public-api';
+import { asyncGet, check, clearAll, crypt, decrypt, get, getItemLength, remove, set } from 'projects/ng-cryptostore/src/public-api';
 
 @Component({
   selector: 'app-storage',
@@ -14,7 +14,7 @@ export class LocalstoreComponent implements OnInit {
   checkValue: boolean;
   length: number;
   storagetype = ""
-  constructor(private srv: StorageService, private dataStorage: StorageServiceConfig) {
+  constructor(private dataStorage: StorageServiceConfig) {
     this.storagetype = this.dataStorage._storageType;
   }
 
@@ -23,7 +23,7 @@ export class LocalstoreComponent implements OnInit {
   }
 
   save(data: string) {
-    this.srv.set('text', data).then(() => {
+    set('text', data).then(() => {
       this.show()
       this.read()
       this.readAwait()
@@ -37,40 +37,40 @@ export class LocalstoreComponent implements OnInit {
   }
 
   read() {
-    this.showData = this.srv.get('text')
+    this.showData = get('text')
   }
 
   async readAwait() {
-    this.showDataAwait = await this.srv.asyncGet('text')
+    this.showDataAwait = await asyncGet('text')
   }
 
   removeItem(name: string) {
-    this.srv.remove("text");
+    remove("text");
   }
 
   removeAll() {
-    this.srv.clearAll()
+    clearAll()
   }
 
   check() {
-    this.checkValue = this.srv.check('text');
-    console.log(this.srv.check('text'));
+    this.checkValue = check('text');
+    console.log(check('text'));
   }
 
   async getLength() {
-    this.length = await this.srv.getItemLength('text');
-    console.log(await this.srv.getItemLength('text'));
+    this.length = await getItemLength('text');
+    console.log(await getItemLength('text'));
   }
 
   async crypt() {
-    console.log(await this.srv.crypt([
+    console.log(await crypt([
       { name: "fraise", icons: "🍓" },
       { name: "banane", icons: "🍌" },
     ]));
   }
 
   async decrypt() {
-    console.log(await this.srv.decrypt(await this.srv.crypt([
+    console.log(await decrypt(await crypt([
       { name: "fraise", icons: "🍓" },
       { name: "banane", icons: "🍌" },
     ])));

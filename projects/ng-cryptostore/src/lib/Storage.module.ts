@@ -16,7 +16,7 @@ export class StorageModule {
     }
   }
 
-  static forRoot(config: StorageConfig): ModuleWithProviders<StorageModule> {
+  static withConfig(config: StorageConfig): ModuleWithProviders<StorageModule> {
     return {
       ngModule: StorageModule,
       providers: [

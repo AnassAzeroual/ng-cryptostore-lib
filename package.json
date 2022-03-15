@@ -5,7 +5,7 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build ng-cryptostore --configuration production && cd dist/ng-cryptostore && npm publish",
-    "tests": "ng build ng-cryptostore --configuration production",
+    "pack": "ng build ng-cryptostore --configuration production && cd dist/ng-cryptostore && npm pack",
     "lint": "ng lint",
     "e2e": "ng e2e"
   },

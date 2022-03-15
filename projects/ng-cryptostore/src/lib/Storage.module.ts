@@ -12,7 +12,7 @@ export class StorageModule {
   constructor(@Optional() @SkipSelf() parentModule?: StorageModule) {
     if (parentModule) {
       throw new Error(
-        'GreetingModule is already loaded. Import it in the AppModule only');
+        'StorageModule is already loaded. Import it in the AppModule only');
     }
   }
 

@@ -1,9 +1,9 @@
-import { StorageServiceConfig } from './../../../../ng-cryptostore/src/lib/StorageServiceConfig.service';
+import { StorageServiceConfigs } from './../../../../ng-cryptostore/src/lib/StorageServiceConfig.service';
 import { Component, OnInit } from '@angular/core';
-import { asyncGet, check, clearAll, crypt, decrypt, get, getItemLength, remove, set } from 'projects/ng-cryptostore/src/public-api';
+import { StorageService } from 'projects/ng-cryptostore/src/public-api';
 
 @Component({
-  selector: 'app-storage',
+  selector: 'app-localstore',
   templateUrl: './localstore.component.html',
   styleUrls: ['./localstore.component.scss']
 })
@@ -11,66 +11,65 @@ export class LocalstoreComponent implements OnInit {
   showDataCrypted: string = ""
   showData: string = ""
   showDataAwait: Promise<any>;
-  checkValue: boolean;
-  length: number;
-  storagetype = ""
-  constructor(private dataStorage: StorageServiceConfig) {
-    this.storagetype = this.dataStorage._storageType;
-  }
+  constructor(private srv: StorageService, private dataStorage: StorageServiceConfigs) { }
 
   ngOnInit() {
     console.log("datastoragetype :: ", this.dataStorage._storageType);
   }
 
   save(data: string) {
-    set('text', data).then(() => {
+    this.srv.set('text', data).then(() => {
       this.show()
       this.read()
       this.readAwait()
-      this.check()
-      this.getLength()
     })
   }
 
   show() {
-    this.showDataCrypted = (!!localStorage.getItem('text')) ? localStorage.getItem('text') : sessionStorage.getItem('text');
+    this.showDataCrypted = localStorage.getItem('text')
   }
 
   read() {
-    this.showData = get('text')
+    this.showData = this.srv.get('text')
   }
 
   async readAwait() {
-    this.showDataAwait = await asyncGet('text')
+    this.showDataAwait = await this.srv.asyncGet('text')
   }
 
   removeItem(name: string) {
-    remove("text");
+    this.srv.remove("text")
   }
 
   removeAll() {
-    clearAll()
+    this.srv.clearAll()
   }
 
   check() {
-    this.checkValue = check('text');
-    console.log(check('text'));
+    console.log(this.srv.check('text'));
+  }
+
+  async awiatGetItem() {
+    console.log(await this.srv.asyncGet('text'));
+  }
+
+  getItem() {
+    console.log(this.srv.get('text'));
   }
 
   async getLength() {
-    this.length = await getItemLength('text');
-    console.log(await getItemLength('text'));
+    console.log(await this.srv.getItemLength('text'));
   }
 
   async crypt() {
-    console.log(await crypt([
+    console.log(await this.srv.crypt([
       { name: "fraise", icons: "🍓" },
       { name: "banane", icons: "🍌" },
     ]));
   }
 
   async decrypt() {
-    console.log(await decrypt(await crypt([
+    console.log(await this.srv.decrypt(await this.srv.crypt([
       { name: "fraise", icons: "🍓" },
       { name: "banane", icons: "🍌" },
     ])));

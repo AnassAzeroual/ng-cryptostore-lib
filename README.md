@@ -5,15 +5,36 @@ to store data (string,object or array of abjects) in localstore or sessionstore 
 
 ## Table of Contents
 
+- [Declaration](#Declaration)
 - [Imports and injections](#Imports-and-injections)
-- [All Fuctions](#All-Fuctions)
+- [All Functions](#All-Fuctions)
 - [Usage](#Usage)
 - [Options](#Options)
+
+## Declaration
+
+```js
+...
+import { StorageModule } from 'ng-cryptostore';
+
+@NgModule({
+  declarations: [
+    ...
+  ],
+  imports: [
+    ...
+    StorageModule.withConfig({ storageType: "localStorage" }) // <----- ( localStorage or sessionStorage )
+  ],
+  providers: [...],
+  bootstrap: [...]
+})
+export class AppModule { }
+```
 
 ## Imports and injections
 
 ```js
-import { LocalstorageService,SessionstorageService } from 'ng-cryptostore';
+import { StorageService } from 'ng-cryptostore';
 
 @Component({
   selector: 'app-root',
@@ -22,41 +43,33 @@ import { LocalstorageService,SessionstorageService } from 'ng-cryptostore';
 })
 export class AppComponent implements OnInit {
 
-  constructor(private srv:SessionstorageService){}
+  constructor(private store:StorageService){} // <---- injections
 
   ngOnInit(): void {
-    this.srv.setItem('fruits',[{name:'fraise',icons:'🍓'},{name:'banane',icons:'🍌'}])
+    this.store.set('fruits',[{name:'fraise',icons:'🍓'},{name:'banane',icons:'🍌'}])
   }
 }
-```
-
-> add to constructor :
-
-```js
-// you can use LocalstorageService or SessionstorageService
-constructor(private srv: LocalstorageService) { }
-
 ```
 
 ## All Functions
 
 ```js
-1: setItem(name: string, data: any, secret?: string): Promise<void>
-2: getItem(name: string, secret?: string): any
-3: awiatGetItem(name: string, secret?: string): Promise<any>
-4: check(name: string): boolean
-5: removeItem(name: string): void
-6: clearAll(): void
-7: getItemLength(name: string, secret?: string): Promise<number>
-8: crypt(data: any, secret?: string): Promise<any>
-9: decrypt(scripts: string, secret?: string): Promise<any>
+set(name: string, data: any, secret?: string): Promise<void>;
+get(name: string, secret?: string): any;
+asyncGet(name: string, secret?: string): Promise<any>;
+remove(name: string): void;
+check(name: string): boolean;
+getItemLength(name: string, secret?: string): Promise<number>;
+clearAll(): void;
+crypt(data: any, secret?: string): Promise<any>;
+decrypt(scripts: string, secret?: string): Promise<any>;
 ```
 
 ## Usage
 
-> (method) setItem(name: string, data: any, secret?: string): Promise<void>
+> (method) set(name: string, data: any, secret?: string): Promise<void>
 
-> method 'setItem' store the data
+> method 'set' store the data
 > for example :
 
 ```js
@@ -65,55 +78,55 @@ const fruitsArray = [
   { name: "fraise", icons: "🍓" },
   { name: "banane", icons: "🍌" },
 ];
-this.srv.setItem("fruitsArray", fruitsArray);
+this.store.set("fruitsArray", fruitsArray);
 
 // store object crypted
-this.srv.setItem("fruit", { name: "orange", icons: "🍊" });
+this.store.set("fruit", { name: "orange", icons: "🍊" });
 
 // store strings crypted
-this.srv.setItem("strings", "fruits: orange,fraise,banane and ...");
+this.store.set("strings", "fruits: orange,fraise,banane and ...");
 
 // store numbers crypted
-this.srv.setItem("numbers", 1234567892121);
+this.store.set("numbers", 1234567892121);
 ```
 
-> (method) getItem(name: string, secret?: string): any
+> (method) get(name: string, secret?: string): any
 
-> method 'getItem' read the data
+> method 'get' read the data
 > for example :
 
 ```js
 // get fruits array decrypted
-console.log(this.srv.getItem("fruitsArray")); //  [{…}, {…}]
+console.log(this.store.get("fruitsArray")); //  [{…}, {…}]
 
 // get fruit object decrypted
-console.log(this.srv.getItem("fruit")); //  {…}
+console.log(this.store.get("fruit")); //  {…}
 
 // get fruit strings decrypted
-console.log(this.srv.getItem("strings")); //  fruits: orange,fraise,banane and ...
+console.log(this.store.get("strings")); //  fruits: orange,fraise,banane and ...
 
 // get numbers decrypted
-console.log(this.srv.getItem("numbers")); //  1234567892121
+console.log(this.store.get("numbers")); //  1234567892121
 
 // in case the item does not exist
-console.log(this.srv.getItem("this_item_does_not_exist")); //  ""
+console.log(this.store.get("this_item_does_not_exist")); //  ""
 ```
 
-> (method) awiatGetItem(name: string, secret?: string): Promise<any>
+> (method) asyncGet(name: string, secret?: string): Promise<any>
 
-> method 'awiatGetItem' read the data with promise
+> method 'asyncGet' read the data with promise
 > for example :
 
 ```js
 // get data decrypted
-this.srv.awiatGetItem("fruitsArray").then((res) => {
+this.store.asyncGet("fruitsArray").then((res) => {
   console.log(res); // [{…}, {…}]
 });
 
 // Or
 
 // get data decrypted
-console.log(await this.srv.awiatGetItem("fruitsArray")); // [{…}, {…}]
+console.log(await this.store.asyncGet("fruitsArray")); // [{…}, {…}]
 ```
 
 > (method) check(name: string): boolean
@@ -123,16 +136,16 @@ console.log(await this.srv.awiatGetItem("fruitsArray")); // [{…}, {…}]
 
 ```js
 // check if this item exist, if exist return true
-console.log(this.srv.check("fruit")); // true or false
+console.log(this.store.check("fruit")); // true or false
 ```
 
-> (method) removeItem(name: string): void
+> (method) remove(name: string): void
 
-> method 'removeItem' remove one item by name
+> method 'remove' remove one item by name
 > for example :
 
 ```js
-this.srv.removeItem("fruit");
+this.store.remove("fruit");
 ```
 
 > (method) clearAll(): void
@@ -141,7 +154,7 @@ this.srv.removeItem("fruit");
 > for example :
 
 ```js
-this.srv.clearAll();
+this.store.clearAll();
 ```
 
 > (method) getItemLength(name: string, secret?: string): Promise<number>
@@ -150,7 +163,7 @@ this.srv.clearAll();
 > for example :
 
 ```js
-console.log(this.srv.getItemLength("fruit")); // 21
+console.log(this.store.getItemLength("fruit")); // 21
 ```
 
 > (method) crypt(data: any, secret?: string): Promise<any>
@@ -164,7 +177,7 @@ const data = [
   { name: "banane", icons: "🍌" },
 ];
 
-console.log(await this.srv.crypt(data)); // U2FsdGVkX18lKfMIr8dpIGGLy...
+console.log(await this.store.crypt(data)); // U2FsdGVkX18lKfMIr8dpIGGLy...
 ```
 
 > (method) decrypt(scripts: string, secret?: string): Promise<any>
@@ -175,7 +188,7 @@ console.log(await this.srv.crypt(data)); // U2FsdGVkX18lKfMIr8dpIGGLy...
 ```js
 const dataCrypted = "U2FsdGVkX18lKfMIr8dpIGGLy...";
 
-console.log(await this.srv.decrypt(dataCrypted)); // [{ name: "fraise", icons: "🍓" },{ name: "banane", icons: "🍌"}]
+console.log(await this.store.decrypt(dataCrypted)); // [{ name: "fraise", icons: "🍓" },{ name: "banane", icons: "🍌"}]
 ```
 
 ## Options
@@ -184,14 +197,14 @@ console.log(await this.srv.decrypt(dataCrypted)); // [{ name: "fraise", icons: "
 
 ```js
 // set data crypted with token !secret token @123456
-this.srv.setItem(
+this.store.set(
   "fruits",
   [{ name: "orange", icons: "🍊" }],
   "!secret token @123456"
 );
 
 // get data decrypted with token !secret token @123456
-this.srv.awiatGetItem("fruits", "!secret token @123456").then((res) => {
+this.store.asyncGet("fruits", "!secret token @123456").then((res) => {
   console.log(res); // [{…}]
 });
 ```

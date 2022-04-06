@@ -4,6 +4,7 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
+    "pack": "ng build ng-cryptostore --configuration production && cd dist/ng-cryptostore && npm pack",
     "build": "ng build ng-cryptostore --configuration production && cd dist/ng-cryptostore && npm publish",
     "tests": "ng build ng-cryptostore --configuration production",
     "lint": "ng lint",

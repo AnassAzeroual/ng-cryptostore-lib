@@ -16,7 +16,7 @@ import { AppComponent } from './app.component';
   imports: [
     BrowserModule,
     AppRoutingModule,
-    StorageModule.withConfig({ storageType: "sessionStorage" })
+    StorageModule.withConfig({ storageType: "localStorage" })
   ],
   providers: [],
   bootstrap: [AppComponent]

@@ -14,6 +14,7 @@ export class LocalstoreComponent implements OnInit {
   constructor(private srv: StorageService, private dataStorage: StorageServiceConfigs) { }
 
   ngOnInit() {
+
     console.log("datastoragetype :: ", this.dataStorage._storageType);
   }
 

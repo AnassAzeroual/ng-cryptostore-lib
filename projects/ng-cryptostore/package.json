@@ -1,11 +1,29 @@
 {
   "name": "ng-cryptostore",
-  "version": "0.0.1",
+  "version": "13.0.0",
+  "author": "Anass Azeroual <azeroual.anass2015@gmail.com> (https://github.com/AnassAzeroual)",
+  "license": "MIT",
+  "keywords": [
+    "crypt",
+    "store",
+    "crypto-store",
+    "cryptostore",
+    "ng-crypto-store",
+    "ng-cryptostore",
+    "localstore",
+    "sessionstore",
+    "security"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/AnassAzeroual/ng-cryptostore-lib"
+  },
   "peerDependencies": {
     "@angular/common": "^14.2.0",
     "@angular/core": "^14.2.0"
   },
   "dependencies": {
+    "crypto-js": "^4.1.1",
     "tslib": "^2.3.0"
   }
 }

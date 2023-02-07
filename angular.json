@@ -44,6 +44,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
+            "preserveSymlinks": true,
             "outputPath": "dist/cryptostore-test-demo",
             "index": "projects/cryptostore-test-demo/src/index.html",
             "main": "projects/cryptostore-test-demo/src/main.ts",

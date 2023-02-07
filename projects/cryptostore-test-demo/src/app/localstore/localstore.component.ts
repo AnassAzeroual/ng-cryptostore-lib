@@ -1,6 +1,5 @@
-import { StorageServiceConfigs } from './../../../../ng-cryptostore/src/lib/StorageServiceConfig.service';
 import { Component, OnInit } from '@angular/core';
-import { StorageService } from 'projects/ng-cryptostore/src/public-api';
+import { StorageService } from 'ng-cryptostore';
 
 @Component({
   selector: 'app-localstore',
@@ -11,12 +10,9 @@ export class LocalstoreComponent implements OnInit {
   showData: string = ""
   showDataAwait!: Promise<any>;
   showDataCrypted!: string | null;
-  constructor(private srv: StorageService, private dataStorage: StorageServiceConfigs) { }
+  constructor(private srv: StorageService) { }
 
-  ngOnInit() {
-
-    console.log("datastoragetype :: ", this.dataStorage._storageType);
-  }
+  ngOnInit() {}
 
   save(data: string) {
     this.srv.set('text', data).then(() => {

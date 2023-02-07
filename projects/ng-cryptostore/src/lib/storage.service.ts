@@ -1,13 +1,13 @@
-import { StorageServiceConfigs } from './StorageServiceConfig.service';
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import * as CryptoJS from 'crypto-js';
+import { StorageServiceConfigs } from './StorageServiceConfig.service';
 @Injectable({
   providedIn: 'root'
 })
 export class StorageService {
   storage
   constructor(private config: StorageServiceConfigs) {
-    this.storage = config.storage
+    this.storage = config.storage;
   }
 
   async set(name: string, data: any, secret?: string) {
@@ -17,7 +17,7 @@ export class StorageService {
     const dataCrypted = await CryptoJS.AES.encrypt(JSON.stringify(data), secret,
       {
         keySize: 128 / 8,
-        iv: secret,
+        iv: CryptoJS.enc.Utf8.parse(secret),
         mode: CryptoJS.mode.CBC,
         padding: CryptoJS.pad.Pkcs7
       }).toString();
@@ -33,7 +33,7 @@ export class StorageService {
     return JSON.parse(CryptoJS.enc.Utf8.stringify(CryptoJS.AES.decrypt(scripts, secret,
       {
         keySize: 128 / 8,
-        iv: secret,
+        iv: CryptoJS.enc.Utf8.parse(secret),
         mode: CryptoJS.mode.CBC,
         padding: CryptoJS.pad.Pkcs7
       })));
@@ -48,7 +48,7 @@ export class StorageService {
     return await JSON.parse(CryptoJS.enc.Utf8.stringify(CryptoJS.AES.decrypt(scripts, secret,
       {
         keySize: 128 / 8,
-        iv: secret,
+        iv: CryptoJS.enc.Utf8.parse(secret),
         mode: CryptoJS.mode.CBC,
         padding: CryptoJS.pad.Pkcs7
       })));
@@ -61,7 +61,7 @@ export class StorageService {
   }
 
   check(name: string) {
-    return (!!this.storage.getItem(name) && !!this.storage.getItem(name).length)
+    return (!!this.storage.getItem(name) && !!this.storage.getItem(name)?.length)
   }
 
   getItemLength(name: string, secret?: string): Promise<number> {
@@ -80,7 +80,7 @@ export class StorageService {
     return await CryptoJS.AES.encrypt(JSON.stringify(data), secret,
       {
         keySize: 128 / 8,
-        iv: secret,
+        iv: CryptoJS.enc.Utf8.parse(secret),
         mode: CryptoJS.mode.CBC,
         padding: CryptoJS.pad.Pkcs7
       }).toString();
@@ -93,7 +93,7 @@ export class StorageService {
     return await JSON.parse(CryptoJS.enc.Utf8.stringify(CryptoJS.AES.decrypt(scripts, secret,
       {
         keySize: 128 / 8,
-        iv: secret,
+        iv: CryptoJS.enc.Utf8.parse(secret),
         mode: CryptoJS.mode.CBC,
         padding: CryptoJS.pad.Pkcs7
       })));

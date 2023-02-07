@@ -5,8 +5,7 @@ import { StorageConfig } from './StorageConfig';
 @NgModule({
   imports: [
     CommonModule
-  ],
-  providers: []
+  ]
 })
 export class StorageModule {
   constructor(@Optional() @SkipSelf() parentModule?: StorageModule) {

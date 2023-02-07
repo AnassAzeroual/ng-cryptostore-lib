@@ -8,9 +8,9 @@ import { StorageService } from 'projects/ng-cryptostore/src/public-api';
   styleUrls: ['./localstore.component.scss']
 })
 export class LocalstoreComponent implements OnInit {
-  showDataCrypted: string = ""
   showData: string = ""
-  showDataAwait: Promise<any>;
+  showDataAwait!: Promise<any>;
+  showDataCrypted!: string | null;
   constructor(private srv: StorageService, private dataStorage: StorageServiceConfigs) { }
 
   ngOnInit() {

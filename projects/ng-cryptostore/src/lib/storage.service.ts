@@ -1,12 +1,13 @@
 import { inject, Injectable } from '@angular/core';
 import * as CryptoJS from 'crypto-js';
+import { IndexedDBService } from './IndexedDBService.service';
 import { StorageServiceConfigs } from './StorageServiceConfig.service';
 @Injectable({
   providedIn: 'root'
 })
 export class StorageService {
   storage
-  constructor(private config: StorageServiceConfigs) {
+  constructor(private config: StorageServiceConfigs,private indexDB: IndexedDBService) {
     this.storage = config.storage;
   }
 
@@ -21,7 +22,10 @@ export class StorageService {
         mode: CryptoJS.mode.CBC,
         padding: CryptoJS.pad.Pkcs7
       }).toString();
-    this.storage.setItem(name, dataCrypted)
+    if (this.config._storageType === 'IndexedDB') {
+      return this.indexDB.create(name, dataCrypted)
+    }
+    return this.storage.setItem(name, dataCrypted)
   }
 
   get(name: string, secret?: string) {
@@ -29,7 +33,12 @@ export class StorageService {
       secret = "kQ-ND4EZF421S@DF84FQZ634§/4FSQ1C6§!Q5Q4F@E1SDQ!F84G68TH451BBF3SFD64R9!EG6DG"
     }
     if (!this.check(name)) return "";
-    const scripts: any = this.storage.getItem(name)
+    let scripts:any;
+    if (this.config._storageType === 'IndexedDB') {
+      scripts = this.indexDB.read(name)
+    }else{
+      scripts = this.storage.getItem(name)
+    }
     return JSON.parse(CryptoJS.enc.Utf8.stringify(CryptoJS.AES.decrypt(scripts, secret,
       {
         keySize: 128 / 8,
@@ -44,7 +53,12 @@ export class StorageService {
       secret = "kQ-ND4EZF421S@DF84FQZ634§/4FSQ1C6§!Q5Q4F@E1SDQ!F84G68TH451BBF3SFD64R9!EG6DG"
     }
     if (!this.check(name)) return "";
-    const scripts: any = this.storage.getItem(name)
+    let scripts:any;
+    if (this.config._storageType === 'IndexedDB') {
+      scripts = this.indexDB.read(name)
+    }else{
+      scripts = this.storage.getItem(name)
+    }
     return await JSON.parse(CryptoJS.enc.Utf8.stringify(CryptoJS.AES.decrypt(scripts, secret,
       {
         keySize: 128 / 8,
@@ -56,21 +70,30 @@ export class StorageService {
 
   remove(name: string) {
     if (this.check(name)) {
-      this.storage.removeItem(name)
+      if (this.config._storageType === 'IndexedDB') {
+        this.indexDB.delete(name)
+      } else {
+        this.storage.removeItem(name)
+      }
     }
   }
 
   check(name: string) {
-    return (!!this.storage.getItem(name) && !!this.storage.getItem(name)?.length)
+    return (this.config._storageType === 'IndexedDB')? true:(!!this.storage.getItem(name) && !!this.storage.getItem(name)?.length);
   }
 
-  getItemLength(name: string, secret?: string): Promise<number> {
-    const data = this.get(name, secret)
+  async getItemLength(name: string, secret?: string): Promise<number> {
+    let data: any
+    if (this.config._storageType === 'IndexedDB') {
+      data = this.decrypt(await this.indexDB.read(name) as string,secret)
+    } else {
+      data = this.get(name, secret)
+    }
     return data.length
   }
 
   clearAll() {
-    this.storage.clear()
+    (this.config._storageType === 'IndexedDB') ? this.indexDB.deleteAll():this.storage.clear();
   }
 
   async crypt(data: any, secret?: string) {

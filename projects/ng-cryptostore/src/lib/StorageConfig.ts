@@ -1,4 +1,4 @@
 
 export class StorageConfig {
-  storageType: 'localStorage' | 'sessionStorage' = 'localStorage';
+  storageType: 'localStorage' | 'sessionStorage' | 'IndexedDB' = 'localStorage';
 }

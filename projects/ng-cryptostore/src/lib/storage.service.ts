@@ -1,4 +1,4 @@
-import { inject, Injectable } from '@angular/core';
+import { Injectable } from '@angular/core';
 import * as CryptoJS from 'crypto-js';
 import { CookieService } from './CookieService.service';
 import { IndexedDBService } from './IndexedDBService.service';
@@ -16,7 +16,7 @@ export class StorageService {
     if (!secret) {
       secret = "kQ-ND4EZF421S@DF84FQZ634§/4FSQ1C6§!Q5Q4F@E1SDQ!F84G68TH451BBF3SFD64R9!EG6DG"
     }
-    const dataCrypted = await CryptoJS.AES.encrypt(JSON.stringify(data), secret,
+    const dataEncrypted = await CryptoJS.AES.encrypt(JSON.stringify(data), secret,
       {
         keySize: 128 / 8,
         iv: CryptoJS.enc.Utf8.parse(secret),
@@ -24,11 +24,11 @@ export class StorageService {
         padding: CryptoJS.pad.Pkcs7
       }).toString();
     if (this.config._storageType === 'IndexedDB') {
-      return this.indexDB.create(name, dataCrypted)
+      return this.indexDB.create(name, dataEncrypted)
     } else if (this.config._storageType === 'cookies') {
-      this.cookies.create(name,dataCrypted,1) 
+      this.cookies.create(name, dataEncrypted, 1)
     } else {
-      return this.storage.setItem(name, dataCrypted)
+      return this.storage.setItem(name, dataEncrypted)
     }
   }
 
@@ -45,7 +45,7 @@ export class StorageService {
     } else {
       scripts = this.storage.getItem(name)
     }
-    if(!scripts) return null;
+    if (!scripts) return null;
     return JSON.parse(CryptoJS.enc.Utf8.stringify(CryptoJS.AES.decrypt(scripts, secret,
       {
         keySize: 128 / 8,
@@ -92,8 +92,8 @@ export class StorageService {
   check(name: string) {
     if (this.config._storageType === 'IndexedDB') {
       return true
-    } else if(this.config._storageType === 'cookies') {
-      return true
+    } else if (this.config._storageType === 'cookies') {
+      return !!this.cookies.read(name)
     } else {
       return (!!this.storage.getItem(name) && !!this.storage.getItem(name)?.length);
     }
@@ -104,7 +104,8 @@ export class StorageService {
     if (this.config._storageType === 'IndexedDB') {
       data = this.decrypt(await this.indexDB.read(name) as string, secret)
     } else if (this.config._storageType === 'cookies') {
-      data = await this.decrypt(this.cookies.read(name) as string, secret);
+      let cookie = await this.cookies.read(name);
+      data = await this.decrypt(cookie, secret);
     } else {
       data = this.get(name, secret)
     }
@@ -114,7 +115,7 @@ export class StorageService {
   clearAll() {
     if (this.config._storageType === 'IndexedDB') {
       this.indexDB.deleteAll()
-    } else if(this.config._storageType === 'cookies') {
+    } else if (this.config._storageType === 'cookies') {
       return this.cookies.deleteAll();
     } else {
       this.storage.clear();
@@ -135,6 +136,7 @@ export class StorageService {
   }
 
   async decrypt(scripts: string, secret?: string) {
+    if (!scripts) return ""
     if (!secret) {
       secret = "kQ-ND4EZF421S@DF84FQZ634§/4FSQ1C6§!Q5Q4F@E1SDQ!F84G68TH451BBF3SFD64R9!EG6DG"
     }

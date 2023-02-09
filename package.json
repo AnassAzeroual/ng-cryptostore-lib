@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve",
+    "start": "ng serve -o",
     "pack": "ng build ng-cryptostore --configuration production && cd dist/ng-cryptostore && npm pack",
     "build": "ng build ng-cryptostore --configuration production && cd dist/ng-cryptostore && npm publish",
     "tests": "ng build ng-cryptostore --configuration production",

@@ -12,7 +12,7 @@ export class LocalstoreComponent implements OnInit {
   showDataCrypted!: string | null;
   constructor(private srv: StorageService) { }
 
-  ngOnInit() {}
+  ngOnInit() { }
 
   save(data: string) {
     this.srv.set('text', data).then(() => {
@@ -61,14 +61,14 @@ export class LocalstoreComponent implements OnInit {
   async crypt() {
     console.log(await this.srv.crypt([
       { name: "fraise", icons: "🍓" },
-      { name: "banane", icons: "🍌" },
+      { name: "banana", icons: "🍌" },
     ]));
   }
 
   async decrypt() {
     console.log(await this.srv.decrypt(await this.srv.crypt([
       { name: "fraise", icons: "🍓" },
-      { name: "banane", icons: "🍌" },
+      { name: "banana", icons: "🍌" },
     ])));
   }
 

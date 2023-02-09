@@ -10,6 +10,6 @@ export class AppComponent implements OnInit {
   title = 'demo';
   constructor(private srv: StorageService) { }
   ngOnInit(): void {
-    this.srv.set('userData', [{ name: 'orange', icons: '🍊' }, { name: 'fraise', icons: '🍓' }, { name: 'banane', icons: '🍌' }], '2020')
+    this.srv.set('userData', [{ name: 'orange', icons: '🍊' }, { name: 'fraise', icons: '🍓' }, { name: 'banana', icons: '🍌' }], '2020')
   }
 }

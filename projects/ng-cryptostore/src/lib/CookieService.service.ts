@@ -5,7 +5,7 @@ import { Injectable } from '@angular/core';
 })
 export class CookieService {
 
-  constructor() {}
+  constructor() { }
 
   public create(key: string, value: string, expires?: number | Date) {
     let cookieValue = `${key}=${value}`;
@@ -22,7 +22,7 @@ export class CookieService {
 
   public read(key: string) {
     const keyValue = document.cookie.match(`(^|;) ?${key}=([^;]*)(;|$)`);
-    return keyValue ? keyValue[2] : '';
+    return keyValue ? keyValue[2] : "";
   }
 
   public update(key: string, value: string, expires?: number | Date) {

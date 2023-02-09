@@ -23,7 +23,7 @@ import { StorageModule } from 'ng-cryptostore';
   ],
   imports: [
     ...
-    StorageModule.withConfig({ storageType: "localStorage" }) // <----- ( localStorage or sessionStorage )
+    StorageModule.withConfig({ storageType: "localStorage" }) // <----- ( localStorage | sessionStorage | cookies )
   ],
   providers: [...],
   bootstrap: [...]
@@ -57,6 +57,7 @@ export class AppComponent implements OnInit {
 set(name: string, data: any, secret?: string): Promise<void>;
 get(name: string, secret?: string): any;
 asyncGet(name: string, secret?: string): Promise<any>;
+getEncrypted(name: string): any
 remove(name: string): void;
 check(name: string): boolean;
 getItemLength(name: string, secret?: string): Promise<number>;
@@ -127,6 +128,16 @@ this.store.asyncGet("fruitsArray").then((res) => {
 
 // get data decrypted
 console.log(await this.store.asyncGet("fruitsArray")); // [{…}, {…}]
+```
+
+(method) getEncrypted(name: string): any
+
+> method 'getEncrypted' read the data
+> for example :
+
+```js
+// get data encrypted
+console.log(this.store.getEncrypted("fruitsArray")); // U2FsdGVkX18lKfMIr8dpIGGLy...
 ```
 
 > (method) check(name: string): boolean

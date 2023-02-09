@@ -23,7 +23,7 @@ export class LocalstoreComponent implements OnInit {
   }
 
   show() {
-    this.showDataCrypted = localStorage.getItem('text')
+    this.showDataCrypted = this.srv.getEncrypted('text');
   }
 
   read() {

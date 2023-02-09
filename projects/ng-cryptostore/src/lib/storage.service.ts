@@ -26,7 +26,7 @@ export class StorageService {
     if (this.config._storageType === 'IndexedDB') {
       return this.indexDB.create(name, dataEncrypted)
     } else if (this.config._storageType === 'cookies') {
-      this.cookies.create(name, dataEncrypted, 1)
+      return this.cookies.create(name, dataEncrypted, 1)
     } else {
       return this.storage.setItem(name, dataEncrypted)
     }
@@ -53,6 +53,20 @@ export class StorageService {
         mode: CryptoJS.mode.CBC,
         padding: CryptoJS.pad.Pkcs7
       })));
+  }
+
+  getEncrypted(name: string) {
+    if (!this.check(name)) return "";
+    let scripts: any;
+    if (this.config._storageType === 'IndexedDB') {
+      scripts = this.indexDB.read(name)
+    } else if (this.config._storageType === 'cookies') {
+      scripts = this.cookies.read(name);
+    } else {
+      scripts = this.storage.getItem(name)
+    }
+    if (!scripts) return null;
+    return scripts
   }
 
   async asyncGet(name: string, secret?: string) {

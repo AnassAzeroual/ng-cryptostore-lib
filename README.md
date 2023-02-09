@@ -23,7 +23,8 @@ import { StorageModule } from 'ng-cryptostore';
   ],
   imports: [
     ...
-    StorageModule.withConfig({ storageType: "localStorage" }) // <----- ( localStorage | sessionStorage | cookies )
+    // ( localStorage | sessionStorage | cookies )
+    StorageModule.withConfig({ storageType: "localStorage" })
   ],
   providers: [...],
   bootstrap: [...]

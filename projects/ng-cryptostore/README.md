@@ -1,7 +1,7 @@
 # NgCyptoStore
 
-This library was generated with [Angular CLI](https://github.com/angular/angular-cli) version 12.2.10.
-to store data (string,object or array of abjects) in localstore or sessionstore with crypto-js package
+This library was generated with [Angular CLI](https://github.com/angular/angular-cli) version 14.2.10.
+to store data (string, object or array of objects) in local stores or the session store with crypto-js package
 
 ## Table of Contents
 
@@ -46,7 +46,7 @@ export class AppComponent implements OnInit {
   constructor(private store:StorageService){} // <---- injections
 
   ngOnInit(): void {
-    this.store.set('fruits',[{name:'fraise',icons:'🍓'},{name:'banane',icons:'🍌'}])
+    this.store.set('fruits',[{name:'fraise',icons:'🍓'},{name:'banana',icons:'🍌'}])
   }
 }
 ```
@@ -73,20 +73,20 @@ decrypt(scripts: string, secret?: string): Promise<any>;
 > for example :
 
 ```js
-// store array of objects crypted
+// store array of objects encrypted
 const fruitsArray = [
   { name: "fraise", icons: "🍓" },
-  { name: "banane", icons: "🍌" },
+  { name: "banana", icons: "🍌" },
 ];
 this.store.set("fruitsArray", fruitsArray);
 
-// store object crypted
+// store object encrypted
 this.store.set("fruit", { name: "orange", icons: "🍊" });
 
-// store strings crypted
-this.store.set("strings", "fruits: orange,fraise,banane and ...");
+// store string encrypted
+this.store.set("strings", "fruits: orange,fraise,banana and ...");
 
-// store numbers crypted
+// store numbers encrypted
 this.store.set("numbers", 1234567892121);
 ```
 
@@ -103,7 +103,7 @@ console.log(this.store.get("fruitsArray")); //  [{…}, {…}]
 console.log(this.store.get("fruit")); //  {…}
 
 // get fruit strings decrypted
-console.log(this.store.get("strings")); //  fruits: orange,fraise,banane and ...
+console.log(this.store.get("strings")); //  fruits: orange,fraise,banana and ...
 
 // get numbers decrypted
 console.log(this.store.get("numbers")); //  1234567892121
@@ -168,13 +168,13 @@ console.log(this.store.getItemLength("fruit")); // 21
 
 > (method) crypt(data: any, secret?: string): Promise<any>
 
-> method 'crypt' return data crypted
+> method 'crypt' return data encrypted
 > for example :
 
 ```js
 const data = [
   { name: "fraise", icons: "🍓" },
-  { name: "banane", icons: "🍌" },
+  { name: "banana", icons: "🍌" },
 ];
 
 console.log(await this.store.crypt(data)); // U2FsdGVkX18lKfMIr8dpIGGLy...
@@ -186,9 +186,9 @@ console.log(await this.store.crypt(data)); // U2FsdGVkX18lKfMIr8dpIGGLy...
 > for example :
 
 ```js
-const dataCrypted = "U2FsdGVkX18lKfMIr8dpIGGLy...";
+const dataEncrypted = "U2FsdGVkX18lKfMIr8dpIGGLy...";
 
-console.log(await this.store.decrypt(dataCrypted)); // [{ name: "fraise", icons: "🍓" },{ name: "banane", icons: "🍌"}]
+console.log(await this.store.decrypt(dataEncrypted)); // [{ name: "fraise", icons: "🍓" },{ name: "banana", icons: "🍌"}]
 ```
 
 ## Options
@@ -196,7 +196,7 @@ console.log(await this.store.decrypt(dataCrypted)); // [{ name: "fraise", icons:
 > the secret is optional but if you used a custom secret in setItem you need to store it somewhere to use it later in getItem
 
 ```js
-// set data crypted with token !secret token @123456
+// set data encrypted with token !secret token @123456
 this.store.set(
   "fruits",
   [{ name: "orange", icons: "🍊" }],

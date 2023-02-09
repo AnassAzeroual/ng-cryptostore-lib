@@ -131,7 +131,7 @@ this.store.asyncGet("fruitsArray").then((res) => {
 console.log(await this.store.asyncGet("fruitsArray")); // [{…}, {…}]
 ```
 
-(method) getEncrypted(name: string): any
+> (method) getEncrypted(name: string): any
 
 > method 'getEncrypted' read the data
 > for example :
@@ -215,8 +215,13 @@ this.store.set(
   "!secret token @123456"
 );
 
-// get data decrypted with token !secret token @123456
+// get data using token "!secret token @123456"
+
 this.store.asyncGet("fruits", "!secret token @123456").then((res) => {
   console.log(res); // [{…}]
 });
+
+console.log(this.store.get("fruits", "!secret token @123456")); //  [{…}, {…}]
+
+console.log(this.store.getItemLength("fruit", "!secret token @123456")); // 1
 ```

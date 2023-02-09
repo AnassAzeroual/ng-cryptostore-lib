@@ -44,7 +44,7 @@ import { StorageService } from 'ng-cryptostore';
 })
 export class AppComponent implements OnInit {
 
-  constructor(private store:StorageService){} // <---- injections
+  constructor(private store:StorageService){} // <---- dependency injection (DI)
 
   ngOnInit(): void {
     this.store.set('fruits',[{name:'fraise',icons:'🍓'},{name:'banana',icons:'🍌'}])

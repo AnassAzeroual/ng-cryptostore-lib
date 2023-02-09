@@ -1,5 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import * as CryptoJS from 'crypto-js';
+import { CookieService } from './CookieService.service';
 import { IndexedDBService } from './IndexedDBService.service';
 import { StorageServiceConfigs } from './StorageServiceConfig.service';
 @Injectable({
@@ -7,7 +8,7 @@ import { StorageServiceConfigs } from './StorageServiceConfig.service';
 })
 export class StorageService {
   storage
-  constructor(private config: StorageServiceConfigs,private indexDB: IndexedDBService) {
+  constructor(private config: StorageServiceConfigs, private indexDB: IndexedDBService, private cookies: CookieService) {
     this.storage = config.storage;
   }
 
@@ -24,8 +25,11 @@ export class StorageService {
       }).toString();
     if (this.config._storageType === 'IndexedDB') {
       return this.indexDB.create(name, dataCrypted)
+    } else if (this.config._storageType === 'cookies') {
+      this.cookies.create(name,dataCrypted,1) 
+    } else {
+      return this.storage.setItem(name, dataCrypted)
     }
-    return this.storage.setItem(name, dataCrypted)
   }
 
   get(name: string, secret?: string) {
@@ -33,12 +37,15 @@ export class StorageService {
       secret = "kQ-ND4EZF421S@DF84FQZ634§/4FSQ1C6§!Q5Q4F@E1SDQ!F84G68TH451BBF3SFD64R9!EG6DG"
     }
     if (!this.check(name)) return "";
-    let scripts:any;
+    let scripts: any;
     if (this.config._storageType === 'IndexedDB') {
       scripts = this.indexDB.read(name)
-    }else{
+    } else if (this.config._storageType === 'cookies') {
+      scripts = this.cookies.read(name);
+    } else {
       scripts = this.storage.getItem(name)
     }
+    if(!scripts) return null;
     return JSON.parse(CryptoJS.enc.Utf8.stringify(CryptoJS.AES.decrypt(scripts, secret,
       {
         keySize: 128 / 8,
@@ -53,10 +60,12 @@ export class StorageService {
       secret = "kQ-ND4EZF421S@DF84FQZ634§/4FSQ1C6§!Q5Q4F@E1SDQ!F84G68TH451BBF3SFD64R9!EG6DG"
     }
     if (!this.check(name)) return "";
-    let scripts:any;
+    let scripts: any;
     if (this.config._storageType === 'IndexedDB') {
       scripts = this.indexDB.read(name)
-    }else{
+    } else if (this.config._storageType === 'cookies') {
+      scripts = this.cookies.read(name);
+    } else {
       scripts = this.storage.getItem(name)
     }
     return await JSON.parse(CryptoJS.enc.Utf8.stringify(CryptoJS.AES.decrypt(scripts, secret,
@@ -72,6 +81,8 @@ export class StorageService {
     if (this.check(name)) {
       if (this.config._storageType === 'IndexedDB') {
         this.indexDB.delete(name)
+      } else if (this.config._storageType === 'cookies') {
+        this.cookies.delete(name);
       } else {
         this.storage.removeItem(name)
       }
@@ -79,13 +90,21 @@ export class StorageService {
   }
 
   check(name: string) {
-    return (this.config._storageType === 'IndexedDB')? true:(!!this.storage.getItem(name) && !!this.storage.getItem(name)?.length);
+    if (this.config._storageType === 'IndexedDB') {
+      return true
+    } else if(this.config._storageType === 'cookies') {
+      return true
+    } else {
+      return (!!this.storage.getItem(name) && !!this.storage.getItem(name)?.length);
+    }
   }
 
   async getItemLength(name: string, secret?: string): Promise<number> {
     let data: any
     if (this.config._storageType === 'IndexedDB') {
-      data = this.decrypt(await this.indexDB.read(name) as string,secret)
+      data = this.decrypt(await this.indexDB.read(name) as string, secret)
+    } else if (this.config._storageType === 'cookies') {
+      data = await this.decrypt(this.cookies.read(name) as string, secret);
     } else {
       data = this.get(name, secret)
     }
@@ -93,7 +112,13 @@ export class StorageService {
   }
 
   clearAll() {
-    (this.config._storageType === 'IndexedDB') ? this.indexDB.deleteAll():this.storage.clear();
+    if (this.config._storageType === 'IndexedDB') {
+      this.indexDB.deleteAll()
+    } else if(this.config._storageType === 'cookies') {
+      return this.cookies.deleteAll();
+    } else {
+      this.storage.clear();
+    }
   }
 
   async crypt(data: any, secret?: string) {

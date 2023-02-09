@@ -16,7 +16,7 @@ import { SessionstoreComponent } from './sessionstore/sessionstore.component';
   imports: [
     BrowserModule,
     AppRoutingModule,
-    StorageModule.withConfig({storageType:'IndexedDB'})
+    StorageModule.withConfig({storageType:'cookies'})
   ],
   providers: [],
   bootstrap: [AppComponent]

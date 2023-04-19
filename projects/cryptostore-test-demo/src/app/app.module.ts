@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-import { StorageModule } from 'projects/ng-cryptostore/src/public-api';
+import { StorageModule } from 'ng-cryptostore';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -16,7 +16,7 @@ import { SessionstoreComponent } from './sessionstore/sessionstore.component';
   imports: [
     BrowserModule,
     AppRoutingModule,
-    StorageModule.withConfig({ storageType: 'localStorage' })
+    StorageModule.withConfig({ storageType: 'cookies' })
   ],
   providers: [],
   bootstrap: [AppComponent]

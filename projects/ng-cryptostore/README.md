@@ -1,6 +1,6 @@
 # NgCyptoStore
 
-This library was generated with [Angular CLI](https://github.com/angular/angular-cli) version 14.2.10.
+This library was updated to [Angular CLI](https://github.com/angular/angular-cli) version 21.0.0.
 to store data (string, object or array of objects) in local stores or the session store with crypto-js package
 
 ## Table of Contents
@@ -13,21 +13,38 @@ to store data (string, object or array of objects) in local stores or the sessio
 
 ## Declaration
 
+In modern Angular applications (Standalone components):
+
 ```js
-...
-import { StorageModule } from 'ng-cryptostore';
+import { bootstrapApplication } from '@angular/platform-browser';
+import { provideNgCryptoStore } from 'ng-cryptostore';
+import { AppComponent } from './app/app.component';
+
+bootstrapApplication(AppComponent, {
+  providers: [
+    // ( localStorage | sessionStorage | cookies )
+    provideNgCryptoStore({ storageType: 'localStorage' })
+  ]
+});
+```
+
+Using NgModules:
+
+```js
+import { provideNgCryptoStore } from 'ng-cryptostore';
 
 @NgModule({
   declarations: [
-    ...
+    // ...
   ],
   imports: [
-    ...
-    // ( localStorage | sessionStorage | cookies )
-    StorageModule.withConfig({ storageType: "localStorage" })
+    // ...
   ],
-  providers: [...],
-  bootstrap: [...]
+  providers: [
+    // ( localStorage | sessionStorage | cookies )
+    provideNgCryptoStore({ storageType: 'localStorage' })
+  ],
+  bootstrap: [/* ... */]
 })
 export class AppModule { }
 ```
@@ -35,16 +52,18 @@ export class AppModule { }
 ## Imports and injections
 
 ```js
+import { Component, OnInit, inject } from '@angular/core';
 import { StorageService } from 'ng-cryptostore';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css']
+  styleUrls: ['./app.component.css'],
+  standalone: true
 })
 export class AppComponent implements OnInit {
 
-  constructor(private store:StorageService){} // <---- dependency injection (DI)
+  private store = inject(StorageService); // <---- dependency injection (DI) using inject()
 
   ngOnInit(): void {
     this.store.set('fruits',[{name:'fraise',icons:'🍓'},{name:'banana',icons:'🍌'}])

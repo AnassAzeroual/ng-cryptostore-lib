@@ -1,17 +1,14 @@
-import { StorageConfig } from './StorageConfig';
-import { Injectable, Optional } from '@angular/core';
+import { STORAGE_CONFIG, StorageConfig } from './StorageConfig';
+import { Injectable, inject } from '@angular/core';
 
 
 @Injectable({ providedIn: 'root' })
 export class StorageServiceConfigs {
-  _storageType!: StorageConfig["storageType"];
-
-  constructor(@Optional() config?: StorageConfig) {
-    if (config) { this._storageType = config.storageType; }
-  }
+  private config = inject(STORAGE_CONFIG);
+  _storageType: StorageConfig['storageType'] = this.config.storageType;
 
   get storage() {
-    return (this._storageType === 'localStorage') ? localStorage : sessionStorage
+    return (this._storageType === 'localStorage') ? localStorage : sessionStorage;
   }
 
 }

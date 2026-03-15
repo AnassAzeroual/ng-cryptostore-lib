@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { StorageServiceConfigs } from './StorageServiceConfig.service';
 
 @Injectable({
@@ -8,10 +8,12 @@ export class IndexedDBService {
 
   private db!: IDBDatabase;
   private objectStore!: IDBObjectStore;
+  private config = inject(StorageServiceConfigs);
 
-  constructor(private config: StorageServiceConfigs) {
+  constructor() {
     this.checkCompatibility();
   }
+
   private checkCompatibility() {
     if (!('indexedDB' in window)) {
       console.error("Your browser doesn't support a stable version of IndexedDB.");
@@ -19,12 +21,13 @@ export class IndexedDBService {
     }
     this.openDatabase();
   }
+
   private openDatabase() {
     const request = window.indexedDB.open("myDatabase", 1);
 
     request.onupgradeneeded = (event: any) => {
       this.db = event.target?.result;
-      const objectStore = this.db.createObjectStore("myObjectStore", { keyPath: "id",autoIncrement:true });
+      const objectStore = this.db.createObjectStore("myObjectStore", { keyPath: "id", autoIncrement: true });
     };
 
     request.onsuccess = (event: any) => {
@@ -45,10 +48,10 @@ export class IndexedDBService {
       const transaction = this.db.transaction("myObjectStore", "readwrite");
       const objectStore = transaction.objectStore("myObjectStore");
       const request = key ? objectStore.add(object, key) : objectStore.add(object);
-      request.onsuccess = (event:any) => {
+      request.onsuccess = (event: any) => {
         resolve(event.target?.result);
       };
-      request.onerror = (event:any) => {
+      request.onerror = (event: any) => {
         reject(event.target?.error);
       };
     });
@@ -109,12 +112,12 @@ export class IndexedDBService {
     });
   }
 
-  public async deleteAll() {
+  public deleteAll() {
     this.checkCompatibility();
     if (!this.db) {
       throw new Error('IndexedDB database not opened');
     }
-    return new Promise(async (resolve, reject) => {
+    return new Promise((resolve, reject) => {
       const transaction = this.db.transaction("myObjectStore", "readwrite");
       const objectStore = transaction.objectStore("myObjectStore");
       const request = objectStore.clear();

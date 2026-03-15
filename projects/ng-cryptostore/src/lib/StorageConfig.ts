@@ -1,4 +1,10 @@
+import { InjectionToken } from '@angular/core';
 
-export class StorageConfig {
-  storageType: 'localStorage' | 'sessionStorage' | 'IndexedDB' | 'cookies' = 'localStorage';
+export interface StorageConfig {
+  storageType: 'localStorage' | 'sessionStorage' | 'IndexedDB' | 'cookies';
 }
+
+export const STORAGE_CONFIG = new InjectionToken<StorageConfig>('StorageConfig', {
+  providedIn: 'root',
+  factory: () => ({ storageType: 'localStorage' })
+});

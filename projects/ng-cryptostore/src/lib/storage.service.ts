@@ -1,22 +1,23 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import * as CryptoJS from 'crypto-js';
 import { CookieService } from './CookieService.service';
 import { IndexedDBService } from './IndexedDBService.service';
 import { StorageServiceConfigs } from './StorageServiceConfig.service';
+
 @Injectable({
   providedIn: 'root'
 })
 export class StorageService {
-  storage
-  constructor(private config: StorageServiceConfigs, private indexDB: IndexedDBService, private cookies: CookieService) {
-    this.storage = config.storage;
-  }
+  private config = inject(StorageServiceConfigs);
+  private indexDB = inject(IndexedDBService);
+  private cookies = inject(CookieService);
+  storage = this.config.storage;
 
   async set(name: string, data: any, secret?: string) {
     if (!secret) {
       secret = "kQ-ND4EZF421S@DF84FQZ634§/4FSQ1C6§!Q5Q4F@E1SDQ!F84G68TH451BBF3SFD64R9!EG6DG"
     }
-    const dataEncrypted = await CryptoJS.AES.encrypt(JSON.stringify(data), secret,
+    const dataEncrypted = CryptoJS.AES.encrypt(JSON.stringify(data), secret,
       {
         keySize: 128 / 8,
         iv: CryptoJS.enc.Utf8.parse(secret),
@@ -82,7 +83,7 @@ export class StorageService {
     } else {
       scripts = this.storage.getItem(name)
     }
-    return await JSON.parse(CryptoJS.enc.Utf8.stringify(CryptoJS.AES.decrypt(scripts, secret,
+    return JSON.parse(CryptoJS.enc.Utf8.stringify(CryptoJS.AES.decrypt(scripts, secret,
       {
         keySize: 128 / 8,
         iv: CryptoJS.enc.Utf8.parse(secret),
@@ -140,7 +141,7 @@ export class StorageService {
     if (!secret) {
       secret = "kQ-ND4EZF421S@DF84FQZ634§/4FSQ1C6§!Q5Q4F@E1SDQ!F84G68TH451BBF3SFD64R9!EG6DG"
     }
-    return await CryptoJS.AES.encrypt(JSON.stringify(data), secret,
+    return CryptoJS.AES.encrypt(JSON.stringify(data), secret,
       {
         keySize: 128 / 8,
         iv: CryptoJS.enc.Utf8.parse(secret),
@@ -154,7 +155,7 @@ export class StorageService {
     if (!secret) {
       secret = "kQ-ND4EZF421S@DF84FQZ634§/4FSQ1C6§!Q5Q4F@E1SDQ!F84G68TH451BBF3SFD64R9!EG6DG"
     }
-    return await JSON.parse(CryptoJS.enc.Utf8.stringify(CryptoJS.AES.decrypt(scripts, secret,
+    return JSON.parse(CryptoJS.enc.Utf8.stringify(CryptoJS.AES.decrypt(scripts, secret,
       {
         keySize: 128 / 8,
         iv: CryptoJS.enc.Utf8.parse(secret),

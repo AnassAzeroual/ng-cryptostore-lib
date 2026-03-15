@@ -1,8 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { StorageService } from 'ng-cryptostore';
 
 @Component({
   selector: 'app-localstore',
+  standalone: true,
   templateUrl: './localstore.component.html',
   styleUrls: ['./localstore.component.scss']
 })
@@ -10,7 +11,7 @@ export class LocalstoreComponent implements OnInit {
   showData: string = ""
   showDataAwait!: Promise<any>;
   showDataCrypted!: string | null;
-  constructor(private srv: StorageService) { }
+  private srv = inject(StorageService);
 
   ngOnInit() { }
 

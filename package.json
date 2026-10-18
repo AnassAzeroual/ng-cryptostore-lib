@@ -4,11 +4,16 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve -o",
-    "pack": "ng build ng-cryptostore --configuration production && cd dist/ng-cryptostore && npm pack",
-    "build": "ng build ng-cryptostore --configuration production && cd dist/ng-cryptostore && npm publish",
-    "tests": "ng build ng-cryptostore --configuration production",
-    "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "build": "ng build ng-cryptostore --configuration production",
+    "build:demo": "ng build cryptostore-test-demo --configuration production",
+    "watch": "ng build ng-cryptostore --watch --configuration development",
+    "pack": "npm run build && cd dist/ng-cryptostore && npm pack",
+    "publish:lib": "npm run build && npm publish dist/ng-cryptostore",
+    "tests": "npm run build",
+    "test": "ng test ng-cryptostore",
+    "test:ci": "ng test ng-cryptostore --watch=false --browsers=ChromeHeadlessCI",
+    "test:coverage": "ng test ng-cryptostore --watch=false --browsers=ChromeHeadlessCI --code-coverage",
+    "test:demo": "ng test cryptostore-test-demo --watch=false --browsers=ChromeHeadlessCI"
   },
   "private": true,
   "dependencies": {

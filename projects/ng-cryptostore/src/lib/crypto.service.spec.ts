@@ -31,6 +31,12 @@ function legacyDecrypt(payload: string, secret: string): unknown {
   );
 }
 
+/** Converts one base64url part of a v2 payload back to padded standard base64. */
+function toStandardBase64(value: string): string {
+  const standard = value.replaceAll('-', '+').replaceAll('_', '/');
+  return standard.length % 4 === 0 ? standard : standard + '='.repeat(4 - (standard.length % 4));
+}
+
 function createService(encryption?: EncryptionOptions): CryptoService {
   TestBed.configureTestingModule({
     providers: [provideNgCryptoStore({ storageType: 'memory', encryption: encryption ?? { iterations: 25 } })]
@@ -96,6 +102,7 @@ describe('CryptoService', () => {
     expect(() => service.decryptString('v2.broken', 'secret')).toThrowError(DecryptionError);
     expect(() => service.decryptString('v2.a.b.c.d', 'secret')).toThrowError(DecryptionError);
     expect(() => service.decryptString('v2.@@@@.@@@@.@@@@.@@@@', 'secret')).toThrowError(DecryptionError);
+    expect(() => service.decryptString('v2.aA.aA.aA.aA', 'secret')).toThrowError(DecryptionError);
   });
 
   it('reads values written by ng-cryptostore <= 21.0.x (legacy format)', () => {
@@ -105,6 +112,44 @@ describe('CryptoService', () => {
     expect(legacyPayload.startsWith('U2FsdGVkX1')).toBeTrue(); // "Salted__", the OpenSSL envelope
     expect(service.decrypt(legacyPayload)).toEqual({ fruits: ['🍓'] });
     expect(service.decrypt(legacyEncrypt('text', 'custom'), 'custom')).toBe('text');
+  });
+
+  it('reads v2 payloads written by the previous crypto-js engine (21.1.0)', () => {
+    // Generated with the crypto-js engine: secret 'fixture-secret', 1000 iterations,
+    // salt 16x 0x01, iv 16x 0x02, value { a: 1, n: 42 }.
+    const fixture =
+      'v2.AQEBAQEBAQEBAQEBAQEBAQ.AgICAgICAgICAgICAgICAg.Zf8B-zdrjNTD4TpFWgJdQw.iS1wrITRB1DKNutWM6ZgFT9abi2uo435LKnskzbMcS0';
+    const service = createService({ iterations: 1000 });
+
+    expect(service.decrypt(fixture, 'fixture-secret')).toEqual({ a: 1, n: 42 });
+  });
+
+  it('writes v2 payloads the previous crypto-js engine can verify and decrypt', () => {
+    const service = createService();
+    const secret = 'cross-secret';
+    const parts = service.encryptString('cross-engine', secret).split('.') as [
+      string,
+      string,
+      string,
+      string,
+      string
+    ];
+    const [version, saltPart, ivPart, cipherPart, macPart] = parts;
+
+    expect(version).toBe('v2');
+
+    const salt = CryptoJS.enc.Base64.parse(toStandardBase64(saltPart));
+    const material = CryptoJS.PBKDF2(secret, salt, { keySize: 16, iterations: 25, hasher: CryptoJS.algo.SHA256 });
+    const encryptionKey = CryptoJS.lib.WordArray.create(material.words.slice(0, 8), 32);
+    const macKey = CryptoJS.lib.WordArray.create(material.words.slice(8), 32);
+
+    const expectedMac = CryptoJS.HmacSHA256(`${saltPart}.${ivPart}.${cipherPart}`, macKey).toString(CryptoJS.enc.Base64);
+    expect(expectedMac).toBe(toStandardBase64(macPart));
+
+    const ciphertext = CryptoJS.enc.Base64.parse(toStandardBase64(cipherPart));
+    const iv = CryptoJS.enc.Base64.parse(toStandardBase64(ivPart));
+    const decrypted = CryptoJS.AES.decrypt(CryptoJS.lib.CipherParams.create({ ciphertext }), encryptionKey, { iv });
+    expect(CryptoJS.enc.Utf8.stringify(decrypted)).toBe('cross-engine');
   });
 
   it('throws when a legacy payload cannot be decoded', () => {

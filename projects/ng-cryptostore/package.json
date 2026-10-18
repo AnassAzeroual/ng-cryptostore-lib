@@ -1,6 +1,6 @@
 {
   "name": "ng-cryptostore",
-  "version": "21.1.0",
+  "version": "21.2.0",
   "description": "Encrypted storage for Angular: AES-256 + PBKDF2 + tamper detection on top of localStorage, sessionStorage, IndexedDB, cookies or memory.",
   "author": "Anass Azeroual <azeroual.anass2015@gmail.com> (https://github.com/AnassAzeroual)",
   "license": "MIT",
@@ -29,7 +29,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/AnassAzeroual/ng-cryptostore-lib"
+    "url": "git+https://github.com/AnassAzeroual/ng-cryptostore-lib.git"
   },
   "sideEffects": false,
   "peerDependencies": {
@@ -37,7 +37,8 @@
     "@angular/core": ">=19.0.0"
   },
   "dependencies": {
-    "crypto-js": "^4.2.0",
+    "@noble/ciphers": "^2.4.0",
+    "@noble/hashes": "^2.4.0",
     "tslib": "^2.3.0"
   }
 }

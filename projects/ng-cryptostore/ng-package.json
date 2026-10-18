@@ -5,6 +5,7 @@
     "entryFile": "src/public-api.ts"
   },
   "allowedNonPeerDependencies": [
-    "crypto-js"
+    "@noble/ciphers",
+    "@noble/hashes"
 ]
 }

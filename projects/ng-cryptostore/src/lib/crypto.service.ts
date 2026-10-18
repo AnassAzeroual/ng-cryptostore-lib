@@ -1,5 +1,10 @@
 import { Injectable, inject } from '@angular/core';
-import * as CryptoJS from 'crypto-js';
+import { cbc } from '@noble/ciphers/aes.js';
+import { hmac } from '@noble/hashes/hmac.js';
+import { md5 } from '@noble/hashes/legacy.js';
+import { pbkdf2 } from '@noble/hashes/pbkdf2.js';
+import { sha256 } from '@noble/hashes/sha2.js';
+import { concatBytes, randomBytes, utf8ToBytes } from '@noble/hashes/utils.js';
 import { DecryptionError, IntegrityError } from './errors';
 import { decodeJson, encodeJson } from './json-codec';
 import { STORAGE_CONFIG } from './StorageConfig';
@@ -18,7 +23,18 @@ const SALT_BYTES = 16;
 const IV_BYTES = 16;
 const ENCRYPTION_KEY_BYTES = 32;
 const MAC_KEY_BYTES = 32;
+const AES_BLOCK_BYTES = 16;
 const DEFAULT_ITERATIONS = 1000;
+
+/** OpenSSL envelope of the legacy format: 8 magic bytes + 8 salt bytes + ciphertext. */
+const LEGACY_MAGIC = 'Salted__';
+const LEGACY_SALT_BYTES = 8;
+
+/** Chunk size for converting byte arrays to binary strings without hitting argument limits. */
+const BINARY_CHUNK = 0x8000;
+
+/** UTF-8 decoder that rejects malformed byte sequences instead of silently replacing them. */
+const UTF8_DECODER = new TextDecoder('utf-8', { fatal: true });
 
 /**
  * Handles every cryptographic operation of the library.
@@ -41,6 +57,10 @@ const DEFAULT_ITERATIONS = 1000;
  *
  * `legacy` payloads (anything not starting with `v2.`) written by older versions are still
  * readable; they are re-encrypted with the modern format on the next write.
+ *
+ * The primitives (AES, HMAC, PBKDF2, MD5, CSPRNG) are provided by the audited
+ * `@noble/ciphers` and `@noble/hashes` packages; the byte layout is unchanged, so payloads
+ * written by previous versions remain readable in both directions.
  */
 @Injectable({ providedIn: 'root' })
 export class CryptoService {
@@ -88,16 +108,15 @@ export class CryptoService {
   }
 
   private encryptV2(plainText: string, passphrase: string): string {
-    const salt = CryptoJS.lib.WordArray.random(SALT_BYTES);
-    const iv = CryptoJS.lib.WordArray.random(IV_BYTES);
+    const salt = randomBytes(SALT_BYTES);
+    const iv = randomBytes(IV_BYTES);
     const keys = this.deriveKeys(passphrase, salt);
 
-    const cipherParams = CryptoJS.AES.encrypt(plainText, keys.encryption, { iv });
-    const ciphertext = cipherParams.ciphertext;
+    const ciphertext = cbc(keys.encryption, iv).encrypt(utf8ToBytes(plainText));
 
     const header = `${toBase64Url(salt)}.${toBase64Url(iv)}.${toBase64Url(ciphertext)}`;
-    const mac = CryptoJS.HmacSHA256(header, keys.mac).toString(CryptoJS.enc.Base64);
-    return `${V2_PREFIX}${header}.${toBase64Url(CryptoJS.enc.Base64.parse(mac))}`;
+    const mac = hmac(sha256, keys.mac, utf8ToBytes(header));
+    return `${V2_PREFIX}${header}.${toBase64Url(mac)}`;
   }
 
   private decryptV2(payload: string, passphrase: string): string {
@@ -107,10 +126,10 @@ export class CryptoService {
     }
     const [saltPart, ivPart, cipherPart, macPart] = parts as [string, string, string, string];
 
-    let salt: CryptoJS.lib.WordArray;
-    let iv: CryptoJS.lib.WordArray;
-    let ciphertext: CryptoJS.lib.WordArray;
-    let mac: CryptoJS.lib.WordArray;
+    let salt: Uint8Array;
+    let iv: Uint8Array;
+    let ciphertext: Uint8Array;
+    let mac: Uint8Array;
     try {
       salt = fromBase64Url(saltPart);
       iv = fromBase64Url(ivPart);
@@ -120,96 +139,118 @@ export class CryptoService {
       throw new DecryptionError('Malformed v2 payload: invalid base64url segment.', { cause: error });
     }
 
-    if (salt.sigBytes !== SALT_BYTES || iv.sigBytes !== IV_BYTES || mac.sigBytes !== 32) {
+    if (salt.length !== SALT_BYTES || iv.length !== IV_BYTES || mac.length !== MAC_KEY_BYTES) {
       throw new DecryptionError('Malformed v2 payload: unexpected salt, iv or mac length.');
     }
 
     const keys = this.deriveKeys(passphrase, salt);
-    const expectedMac = CryptoJS.HmacSHA256(`${saltPart}.${ivPart}.${cipherPart}`, keys.mac);
+    const expectedMac = hmac(sha256, keys.mac, utf8ToBytes(`${saltPart}.${ivPart}.${cipherPart}`));
     if (!constantTimeEquals(expectedMac, mac)) {
       throw new IntegrityError(
         'The stored value failed its integrity check. It was tampered with, or it was encrypted with a different secret.'
       );
     }
 
+    if (ciphertext.length === 0 || ciphertext.length % AES_BLOCK_BYTES !== 0) {
+      throw new DecryptionError('Malformed v2 payload: invalid ciphertext length.');
+    }
+
     try {
-      const decrypted = CryptoJS.AES.decrypt(CryptoJS.lib.CipherParams.create({ ciphertext }), keys.encryption, {
-        iv
-      });
-      return decrypted.toString(CryptoJS.enc.Utf8);
+      return UTF8_DECODER.decode(cbc(keys.encryption, iv).decrypt(ciphertext));
     } catch (error) {
       throw new DecryptionError('Unable to decrypt the stored value.', { cause: error });
     }
   }
 
   /**
-   * Historical format: the secret is used as the key material and as the IV.
-   * Kept only to read data written by ng-cryptostore <= 21.0.x (and to write it when
-   * `encryption.format` is set to `'legacy'`).
+   * Historical format: the OpenSSL `Salted__` envelope with a random 8 byte salt and keys
+   * derived through EVP_BytesToKey (MD5). Kept only to read data written by
+   * ng-cryptostore <= 21.0.x (and to write it when `encryption.format` is set to `'legacy'`).
    */
   private encryptLegacy(plainText: string, passphrase: string): string {
-    return CryptoJS.AES.encrypt(plainText, passphrase, {
-      keySize: 128 / 8,
-      iv: CryptoJS.enc.Utf8.parse(passphrase),
-      mode: CryptoJS.mode.CBC,
-      padding: CryptoJS.pad.Pkcs7
-    }).toString();
+    const salt = randomBytes(LEGACY_SALT_BYTES);
+    const { key, iv } = evpBytesToKey(passphrase, salt);
+    const ciphertext = cbc(key, iv).encrypt(utf8ToBytes(plainText));
+    return bytesToBase64(concatBytes(utf8ToBytes(LEGACY_MAGIC), salt, ciphertext));
   }
 
   private decryptLegacy(payload: string, passphrase: string): string {
     try {
-      return CryptoJS.AES.decrypt(payload, passphrase, {
-        keySize: 128 / 8,
-        iv: CryptoJS.enc.Utf8.parse(passphrase),
-        mode: CryptoJS.mode.CBC,
-        padding: CryptoJS.pad.Pkcs7
-      }).toString(CryptoJS.enc.Utf8);
+      const envelope = base64ToBytes(payload);
+      const magic = utf8ToBytes(LEGACY_MAGIC);
+      const minimumLength = magic.length + LEGACY_SALT_BYTES + AES_BLOCK_BYTES;
+      if (envelope.length < minimumLength || !magic.every((byte, index) => envelope[index] === byte)) {
+        throw new Error('Missing OpenSSL Salted__ envelope.');
+      }
+
+      const { key, iv } = evpBytesToKey(passphrase, envelope.subarray(magic.length, magic.length + LEGACY_SALT_BYTES));
+      return UTF8_DECODER.decode(cbc(key, iv).decrypt(envelope.subarray(magic.length + LEGACY_SALT_BYTES)));
     } catch (error) {
       throw new DecryptionError('Unable to decrypt the stored value (legacy format).', { cause: error });
     }
   }
 
-  private deriveKeys(passphrase: string, salt: CryptoJS.lib.WordArray): {
-    encryption: CryptoJS.lib.WordArray;
-    mac: CryptoJS.lib.WordArray;
-  } {
-    const material = CryptoJS.PBKDF2(passphrase, salt, {
-      keySize: (ENCRYPTION_KEY_BYTES + MAC_KEY_BYTES) / 4,
-      iterations: this.iterations,
-      hasher: CryptoJS.algo.SHA256
+  private deriveKeys(passphrase: string, salt: Uint8Array): { encryption: Uint8Array; mac: Uint8Array } {
+    const material = pbkdf2(sha256, utf8ToBytes(passphrase), salt, {
+      c: this.iterations,
+      dkLen: ENCRYPTION_KEY_BYTES + MAC_KEY_BYTES
     });
-    const encryptionWords = material.words.slice(0, ENCRYPTION_KEY_BYTES / 4);
-    const macWords = material.words.slice(ENCRYPTION_KEY_BYTES / 4);
     return {
-      encryption: CryptoJS.lib.WordArray.create(encryptionWords, ENCRYPTION_KEY_BYTES),
-      mac: CryptoJS.lib.WordArray.create(macWords, MAC_KEY_BYTES)
+      encryption: material.subarray(0, ENCRYPTION_KEY_BYTES),
+      mac: material.subarray(ENCRYPTION_KEY_BYTES)
     };
   }
 }
 
-function toBase64Url(wordArray: CryptoJS.lib.WordArray): string {
-  // `=` only ever appears as trailing base64 padding, so blanket replacement is equivalent to stripping the suffix.
-  return wordArray
-    .toString(CryptoJS.enc.Base64)
-    .replaceAll('+', '-')
-    .replaceAll('/', '_')
-    .replaceAll('=', '');
+/**
+ * OpenSSL-compatible key derivation of the legacy format:
+ * `D_i = MD5(D_{i-1} || passphrase || salt)`, concatenated until key and iv are covered.
+ */
+function evpBytesToKey(passphrase: string, salt: Uint8Array): { key: Uint8Array; iv: Uint8Array } {
+  const passphraseBytes = utf8ToBytes(passphrase);
+  const material = new Uint8Array(ENCRYPTION_KEY_BYTES + IV_BYTES);
+  let previous = new Uint8Array(0);
+  let offset = 0;
+  while (offset < material.length) {
+    previous = md5(concatBytes(previous, passphraseBytes, salt));
+    material.set(previous, offset);
+    offset += previous.length;
+  }
+  return { key: material.subarray(0, ENCRYPTION_KEY_BYTES), iv: material.subarray(ENCRYPTION_KEY_BYTES) };
 }
 
-function fromBase64Url(value: string): CryptoJS.lib.WordArray {
-  const base64 = value.replaceAll('-', '+').replaceAll('_', '/');
-  const padding = base64.length % 4;
-  return CryptoJS.enc.Base64.parse(padding === 0 ? base64 : base64 + '='.repeat(4 - padding));
+function toBase64Url(bytes: Uint8Array): string {
+  return bytesToBase64(bytes).replaceAll('+', '-').replaceAll('/', '_').replaceAll('=', '');
 }
 
-/** Compares two word arrays without leaking their difference position through timing. */
-function constantTimeEquals(a: CryptoJS.lib.WordArray, b: CryptoJS.lib.WordArray): boolean {
-  if (a.sigBytes !== b.sigBytes) return false;
-  const left = a.words;
-  const right = b.words;
+function fromBase64Url(value: string): Uint8Array {
+  return base64ToBytes(value.replaceAll('-', '+').replaceAll('_', '/'));
+}
+
+function bytesToBase64(bytes: Uint8Array): string {
+  let binary = '';
+  for (let index = 0; index < bytes.length; index += BINARY_CHUNK) {
+    binary += String.fromCharCode(...bytes.subarray(index, index + BINARY_CHUNK));
+  }
+  return btoa(binary);
+}
+
+function base64ToBytes(value: string): Uint8Array {
+  const padded = value.length % 4 === 0 ? value : value + '='.repeat(4 - (value.length % 4));
+  const binary = atob(padded);
+  const bytes = new Uint8Array(binary.length);
+  for (let index = 0; index < binary.length; index++) {
+    bytes[index] = binary.charCodeAt(index);
+  }
+  return bytes;
+}
+
+/** Compares two byte arrays without leaking their difference position through timing. */
+function constantTimeEquals(a: Uint8Array, b: Uint8Array): boolean {
+  if (a.length !== b.length) return false;
   let diff = 0;
-  for (let i = 0; i < left.length; i++) {
-    diff |= (left[i] ?? 0) ^ (right[i] ?? 0);
+  for (let index = 0; index < a.length; index++) {
+    diff |= a[index]! ^ b[index]!;
   }
   return diff === 0;
 }

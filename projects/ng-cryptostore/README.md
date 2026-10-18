@@ -10,7 +10,10 @@ with **AES-256**, protected by an **HMAC integrity tag** and readable with a fam
 ## Highlights
 
 - **Modern cryptography** — AES-256-CBC with a random salt and a random IV for every value,
-  PBKDF2-SHA256 key derivation and an HMAC-SHA256 authentication tag that detects tampering.
+  PBKDF2-SHA256 key derivation and an HMAC-SHA256 authentication tag that detects tampering,
+  built on the audited, dependency-free
+  [`@noble/ciphers`](https://github.com/paulmillr/noble-ciphers) and
+  [`@noble/hashes`](https://github.com/paulmillr/noble-hashes) primitives.
 - **Backward compatible** — data written by ng-cryptostore <= 21.0.x is decrypted transparently
   and re-encrypted with the modern format on the next write.
 - **Familiar API** — `set`, `get`, `asyncGet`, `getEncrypted`, `check`, `remove`, `clearAll`,
@@ -295,12 +298,17 @@ v2.<salt>.<iv>.<ciphertext>.<mac>
 
 Segments are base64url encoded, so payloads are safe in cookies, URLs and JSON.
 
+The primitives (AES, HMAC, PBKDF2, MD5 for the legacy format and the random generator) come from
+the audited, dependency-free [`@noble/ciphers`](https://github.com/paulmillr/noble-ciphers) and
+[`@noble/hashes`](https://github.com/paulmillr/noble-hashes) packages. The byte-level layout is
+unchanged, so data written by earlier versions stays readable in both directions.
+
 `encryption.format: 'legacy'` keeps writing the historical format (static IV, no authentication)
 — only useful when an application running the old library version must read the data written by
 the new one. Reads always accept both formats.
 
 The number of PBKDF2 iterations is configurable (`encryption.iterations`, default `1000`,
-≈15 ms per operation on a modern desktop). Raise it when the secret is weak or long-lived.
+≈2 ms per operation on a modern desktop). Raise it when the secret is weak or long-lived.
 
 ## Performance
 
